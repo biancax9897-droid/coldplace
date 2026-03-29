@@ -136,9 +136,7 @@ input[type=number]::-webkit-inner-spin-button{display:none}
 .stats-tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
 .stats-tab{padding:6px 14px;border-radius:50px;border:1.5px solid var(--border);background:none;font-size:.75rem;font-weight:700;color:var(--muted);cursor:pointer;font-family:'Noto Sans SC',sans-serif;transition:all .16s}
 .stats-tab.active{background:var(--pri-l);border-color:var(--primary);color:var(--pri-d)}
-.chart-type-row{display:flex;gap:6px;margin-bottom:12px}
-.chart-type-btn{flex:1;padding:7px;border-radius:var(--rs);border:1.5px solid var(--border);background:none;font-size:.75rem;font-weight:700;color:var(--muted);cursor:pointer;font-family:'Noto Sans SC',sans-serif;transition:all .16s;text-align:center}
-.chart-type-btn.active{background:var(--pri-l);border-color:var(--primary);color:var(--pri-d)}
+
 .chart-wrap{position:relative;height:200px;margin-bottom:8px}
 .stats-legend{display:flex;flex-wrap:wrap;gap:10px;font-size:.72rem;font-weight:700;color:var(--muted)}
 .legend-dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:4px;flex-shrink:0}
@@ -337,10 +335,7 @@ input[type=number]::-webkit-inner-spin-button{display:none}
     <button class="stats-tab active" onclick="setStatsRange('week',this)">最近7天</button>
     <button class="stats-tab" onclick="setStatsRange('month',this)">本月</button>
   </div>
-  <div class="chart-type-row">
-    <button class="chart-type-btn active" onclick="setChartType('bar',this)">📊 柱状图</button>
-    <button class="chart-type-btn" onclick="setChartType('line',this)">📈 折线图</button>
-  </div>
+
   <div class="chart-wrap"><canvas id="statsChart"></canvas></div>
   <div class="stats-legend">
     <span><span class="legend-dot" style="background:#F5C842"></span>奖券收入</span>
@@ -639,7 +634,7 @@ function confetti(){
 // ═══════════════════════════════
 let chartInstance=null;
 let statsRange='week';
-let chartType='bar';
+let chartType='line';
 
 function setStatsRange(range,btn){
   statsRange=range;
@@ -647,12 +642,7 @@ function setStatsRange(range,btn){
   btn.classList.add('active');
   renderChart();
 }
-function setChartType(type,btn){
-  chartType=type;
-  document.querySelectorAll('.chart-type-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  renderChart();
-}
+
 
 function getChartDates(){
   const dates=[];
