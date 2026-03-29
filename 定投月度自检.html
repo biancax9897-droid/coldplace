@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>定投自检</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f7f6f3; --surface: #ffffff; --surface2: #f1efe8;
+  --border: rgba(0,0,0,0.1); --border2: rgba(0,0,0,0.18);
+  --text: #1a1a18; --text2: #5f5e5a; --text3: #888780;
+  --blue-bg: #e6f1fb; --blue-text: #0c447c;
+  --green-bg: #eaf3de; --green-text: #27500a; --green: #3b6d11;
+  --amber-bg: #faeeda; --amber-text: #633806;
+  --red-bg: #fcebeb; --red-text: #791f1f;
+  --radius: 10px; --radius-sm: 6px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1a1a18; --surface: #252522; --surface2: #2c2c2a;
+    --border: rgba(255,255,255,0.1); --border2: rgba(255,255,255,0.18);
+    --text: #e8e6df; --text2: #b4b2a9; --text3: #888780;
+    --blue-bg: #042c53; --blue-text: #85b7eb;
+    --green-bg: #173404; --green-text: #97c459;
+    --amber-bg: #412402; --amber-text: #fac775;
+    --red-bg: #501313; --red-text: #f09595;
+  }
+}
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--bg); color: var(--text); font-size: 15px; line-height: 1.6; }
+.app { max-width: 600px; margin: 0 auto; padding: 32px 16px 60px; }
+h1 { font-size: 21px; font-weight: 600; margin-bottom: 4px; }
+.subtitle { font-size: 13px; color: var(--text3); margin-bottom: 28px; }
+
+.card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 18px; margin-bottom: 12px; }
+.card-title { font-size: 11px; font-weight: 500; color: var(--text3); margin-bottom: 14px; letter-spacing: 0.06em; text-transform: uppercase; }
+
+.col-header { display: grid; grid-template-columns: 1fr 110px 72px; gap: 10px; padding: 0 0 8px; border-bottom: 0.5px solid var(--border); margin-bottom: 2px; }
+.col-header span { font-size: 11px; color: var(--text3); font-weight: 500; }
+.col-header span:nth-child(2) { text-align: right; }
+.col-header span:nth-child(3) { text-align: center; }
+
+.asset-row { display: grid; grid-template-columns: 1fr 110px 72px; gap: 10px; align-items: center; padding: 10px 0; border-bottom: 0.5px solid var(--border); }
+.asset-row:last-child { border-bottom: none; }
+.asset-name { font-size: 14px; font-weight: 500; }
+.asset-meta { font-size: 11px; color: var(--text3); margin-top: 2px; line-height: 1.5; }
+
+input[type=number] { width: 100%; border: 0.5px solid var(--border2); border-radius: var(--radius-sm); background: var(--surface); color: var(--text); padding: 7px 10px; font-size: 14px; text-align: right; }
+input[type=number]:focus { outline: none; border-color: #378add; }
+
+.toggle-cell { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.toggle { position: relative; width: 40px; height: 22px; cursor: pointer; }
+.toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+.toggle-track { position: absolute; inset: 0; background: var(--border2); border-radius: 11px; transition: background 0.2s; }
+.toggle input:checked + .toggle-track { background: var(--green); }
+.toggle-thumb { position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; background: white; border-radius: 50%; transition: transform 0.2s; pointer-events: none; }
+.toggle input:checked ~ .toggle-thumb { transform: translateX(18px); }
+.toggle-lbl { font-size: 10px; color: var(--text3); }
+.toggle-lbl.on { color: var(--green-text); }
+
+.total-row { display: flex; justify-content: space-between; align-items: center; padding: 13px 0 2px; }
+.total-label { font-size: 13px; color: var(--text2); }
+.total-val { font-size: 22px; font-weight: 500; }
+
+.btn-row { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; }
+button { cursor: pointer; border: 0.5px solid var(--border2); background: var(--surface); color: var(--text); border-radius: var(--radius-sm); padding: 9px 18px; font-size: 14px; }
+button:hover { background: var(--surface2); }
+button:active { transform: scale(0.98); }
+.btn-primary { background: var(--text); color: var(--bg); border-color: var(--text); font-weight: 500; }
+.btn-primary:hover { opacity: 0.85; background: var(--text); }
+
+.banner { border-radius: var(--radius); padding: 15px 18px; margin-bottom: 14px; }
+.banner-ok   { background: var(--green-bg); }
+.banner-warn { background: var(--amber-bg); }
+.banner-stop { background: var(--red-bg); }
+.banner-title { font-size: 16px; font-weight: 500; margin-bottom: 2px; }
+.banner-ok   .banner-title { color: var(--green-text); }
+.banner-warn .banner-title,
+.banner-stop .banner-title { color: var(--amber-text); }
+.banner-sub { font-size: 13px; color: var(--text3); }
+
+.checklist-item { font-size: 13px; padding: 9px 12px; border-radius: var(--radius-sm); margin-bottom: 6px; line-height: 1.5; }
+.item-stop   { background: var(--red-bg);   color: var(--red-text); }
+.item-resume { background: var(--green-bg); color: var(--green-text); }
+.item-warn   { background: var(--amber-bg); color: var(--amber-text); }
+.section-label { font-size: 11px; font-weight: 500; color: var(--text3); margin: 12px 0 6px; letter-spacing: 0.04em; }
+
+.result-row { padding: 12px 0; border-bottom: 0.5px solid var(--border); }
+.result-row:last-child { border-bottom: none; }
+.result-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
+.result-name { font-size: 14px; font-weight: 500; }
+.result-right { text-align: right; }
+.result-pct { font-size: 19px; font-weight: 500; }
+.result-amt { font-size: 11px; color: var(--text3); }
+.result-meta { font-size: 12px; color: var(--text3); margin-bottom: 6px; }
+.bar-wrap { height: 4px; background: var(--surface2); border-radius: 2px; position: relative; margin-bottom: 8px; }
+.bar-fill { height: 4px; border-radius: 2px; }
+.bar-target { position: absolute; top: -3px; width: 2px; height: 10px; background: var(--text3); border-radius: 1px; }
+.tags { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 5px; }
+.pill { display: inline-block; font-size: 11px; padding: 2px 9px; border-radius: 20px; font-weight: 500; }
+.pill-ok     { background: var(--green-bg); color: var(--green-text); }
+.pill-warn   { background: var(--amber-bg); color: var(--amber-text); }
+.pill-stop   { background: var(--red-bg);   color: var(--red-text); }
+.pill-low    { background: var(--blue-bg);  color: var(--blue-text); }
+.pill-paused { background: var(--surface2); color: var(--text2); border: 0.5px solid var(--border2); }
+.pill-active { background: var(--green-bg); color: var(--green-text); }
+.action-text { font-size: 13px; color: var(--text2); line-height: 1.5; }
+.hl-pause  { font-weight: 500; color: var(--red-text); }
+.hl-resume { font-weight: 500; color: var(--green-text); }
+
+.rule-line { font-size: 13px; color: var(--text2); padding: 5px 0; border-bottom: 0.5px solid var(--border); line-height: 1.5; }
+.rule-line:last-child { border-bottom: none; }
+.rule-line b { color: var(--text); font-weight: 500; }
+</style>
+</head>
+<body>
+<div class="app">
+
+<h1>定投自检</h1>
+<p class="subtitle">输入当前持仓金额，标记定投状态，查看操作建议</p>
+
+<div id="view-input">
+  <div class="card">
+    <div class="card-title">当前持仓</div>
+    <div class="col-header">
+      <span>品种</span>
+      <span>持仓金额（元）</span>
+      <span>定投中</span>
+    </div>
+    <div id="inputs"></div>
+    <div class="total-row">
+      <span class="total-label">总持仓</span>
+      <span class="total-val" id="total-val">¥ 0</span>
+    </div>
+  </div>
+  <div class="btn-row">
+    <button onclick="resetAll()" style="font-size:13px;padding:8px 14px;">清空</button>
+    <button class="btn-primary" onclick="runAnalysis()">生成建议</button>
+  </div>
+</div>
+
+<div id="view-result" style="display:none;">
+  <div id="report"></div>
+  <div style="text-align:center;margin-top:6px;">
+    <button onclick="backToInput()">返回修改</button>
+  </div>
+</div>
+
+</div>
+<script>
+const ASSETS = [
+  { key:'cn300',  name:'中证300',     sub:'目标20%　暂停线25%　恢复线20%', target:20, stop:25, resume:20,
+    tp:'收益>30% 止盈1/3 → 高点回撤10% 再止盈1/2 → 剩余持有' },
+  { key:'cn1000', name:'中证1000',    sub:'目标15%　暂停线20%　恢复线15%', target:15, stop:20, resume:15,
+    tp:'收益>30% 止盈1/3 → 高点回撤10% 再止盈1/2 → 剩余持有' },
+  { key:'sp500',  name:'标普500',     sub:'目标15%　暂停线20%　恢复线15%', target:15, stop:20, resume:15,
+    tp:'收益>30% 止盈1/3 → 高点回撤10% 再止盈1/2 → 剩余长期持有' },
+  { key:'ndx',    name:'纳斯达克100', sub:'目标10%　暂停线15%　恢复线10%', target:10, stop:15, resume:10,
+    tp:'收益>30% 止盈1/2 → 高点回撤15% 清仓' },
+  { key:'health', name:'全球医疗',    sub:'目标10%　暂停线15%　恢复线10%', target:10, stop:15, resume:10,
+    tp:'收益>25% 止盈1/3 → 高点回撤10% 再止盈1/2 → 剩余持有' },
+  { key:'bond',   name:'长期债券',    sub:'目标15%　暂停线20%　恢复线15%', target:15, stop:20, resume:15,
+    tp:'不主动止盈；占比>20% 卖出超额部分再平衡' },
+  { key:'gold',   name:'黄金ETF',     sub:'目标10%　暂停线15%　恢复线10%', target:10, stop:15, resume:10,
+    tp:'收益>15% 止盈1/3 → >25% 再止盈1/3 → 回撤10% 清仓' },
+];
+
+function fmt(n)    { return Number(n).toLocaleString('zh-CN', {minimumFractionDigits:2, maximumFractionDigits:2}); }
+function fmtInt(n) { return Number(n).toLocaleString('zh-CN', {minimumFractionDigits:0, maximumFractionDigits:0}); }
+
+function getSaved() { try { return JSON.parse(localStorage.getItem('dz_saved') || '{}'); } catch { return {}; } }
+
+function buildInputs() {
+  const saved = getSaved();
+  const c = document.getElementById('inputs');
+  c.innerHTML = '';
+  ASSETS.forEach(a => {
+    const isActive = saved.status?.[a.key] !== false;
+    const row = document.createElement('div');
+    row.className = 'asset-row';
+    row.innerHTML = `
+      <div>
+        <div class="asset-name">${a.name}</div>
+        <div class="asset-meta">${a.sub}</div>
+      </div>
+      <input type="number" id="inp-${a.key}" placeholder="0" min="0" step="0.01"
+             value="${saved.amounts?.[a.key] || ''}" oninput="updateTotal()">
+      <div class="toggle-cell">
+        <label class="toggle">
+          <input type="checkbox" id="dca-${a.key}" ${isActive ? 'checked' : ''}
+                 onchange="updateLbl('${a.key}')">
+          <div class="toggle-track"></div>
+          <div class="toggle-thumb"></div>
+        </label>
+        <div class="toggle-lbl ${isActive ? 'on' : ''}" id="lbl-${a.key}">${isActive ? '是' : '否'}</div>
+      </div>`;
+    c.appendChild(row);
+  });
+  updateTotal();
+}
+
+function updateLbl(key) {
+  const on = document.getElementById('dca-'+key).checked;
+  const el = document.getElementById('lbl-'+key);
+  el.textContent = on ? '是' : '否';
+  el.className = 'toggle-lbl' + (on ? ' on' : '');
+}
+
+function updateTotal() {
+  let t = 0;
+  ASSETS.forEach(a => { t += parseFloat(document.getElementById('inp-'+a.key)?.value) || 0; });
+  document.getElementById('total-val').textContent = '¥ ' + fmt(t);
+}
+
+function getValues() {
+  const amounts = {}, status = {};
+  let total = 0;
+  ASSETS.forEach(a => {
+    const n = parseFloat(document.getElementById('inp-'+a.key)?.value) || 0;
+    amounts[a.key] = n;
+    status[a.key] = document.getElementById('dca-'+a.key)?.checked ?? true;
+    total += n;
+  });
+  localStorage.setItem('dz_saved', JSON.stringify({ amounts, status }));
+  return { amounts, status, total };
+}
+
+function resetAll() {
+  ASSETS.forEach(a => { const el = document.getElementById('inp-'+a.key); if (el) el.value = ''; });
+  updateTotal();
+}
+
+function runAnalysis() {
+  const { amounts, status, total } = getValues();
+  if (total === 0) { alert('请先输入持仓金额'); return; }
+
+  const results = ASSETS.map(a => {
+    const amt = amounts[a.key];
+    const pct = amt / total * 100;
+    const diff = pct - a.target;
+    const isActive = status[a.key];
+    let posStatus, posLabel, dcaClass, actionText;
+
+    if (pct >= a.stop) {
+      posStatus = 'stop'; posLabel = '需暂停';
+      if (isActive) {
+        dcaClass = 'pause';
+        actionText = `当前 ${pct.toFixed(1)}% 已达暂停线，立即暂停定投，等回落至 ${a.resume}% 以下再恢复`;
+      } else {
+        dcaClass = '';
+        actionText = `定投已暂停，维持现状，等仓位回落至 ${a.resume}% 以下`;
+      }
+    } else if (!isActive && pct <= a.resume) {
+      posStatus = 'low'; posLabel = '低配';
+      dcaClass = 'resume';
+      actionText = `仓位已回落至 ${pct.toFixed(1)}%，低于恢复线 ${a.resume}%，可以恢复定投`;
+    } else if (!isActive && diff < 4) {
+      posStatus = diff <= -4 ? 'low' : 'ok';
+      posLabel = diff <= -4 ? '低配' : '仓位正常';
+      dcaClass = 'resume';
+      actionText = `定投已暂停，但仓位${diff <= -4 ? '低配' : '已回归正常'}（${pct.toFixed(1)}%），建议恢复定投`;
+    } else if (diff >= 4) {
+      posStatus = 'warn'; posLabel = '超配';
+      if (isActive) {
+        dcaClass = 'pause';
+        actionText = `超配 ${diff.toFixed(1)}%，建议暂停定投，等自然回落`;
+      } else {
+        dcaClass = '';
+        actionText = `定投已暂停，仍超配 ${diff.toFixed(1)}%，继续维持暂停`;
+      }
+    } else if (diff <= -4) {
+      posStatus = 'low'; posLabel = '低配';
+      dcaClass = '';
+      actionText = isActive
+        ? `低配 ${Math.abs(diff).toFixed(1)}%，继续正常定投`
+        : `定投已暂停，仓位低配 ${Math.abs(diff).toFixed(1)}%，建议恢复定投`;
+      if (!isActive) dcaClass = 'resume';
+    } else {
+      posStatus = 'ok'; posLabel = '正常';
+      dcaClass = isActive ? '' : 'resume';
+      actionText = isActive
+        ? `仓位正常（${pct.toFixed(1)}%），继续定投`
+        : `仓位已回归正常（${pct.toFixed(1)}%），可以恢复定投`;
+    }
+
+    return { ...a, amt, pct, diff, isActive, posStatus, posLabel, dcaClass, actionText };
+  });
+
+  renderReport(results, total);
+  document.getElementById('view-input').style.display = 'none';
+  document.getElementById('view-result').style.display = '';
+}
+
+function renderReport(results, total) {
+  const toPause  = results.filter(r => r.dcaClass === 'pause');
+  const toResume = results.filter(r => r.dcaClass === 'resume');
+  const issueCount = toPause.length + toResume.length;
+
+  const bannerClass = issueCount === 0 ? 'banner-ok' : toPause.length ? 'banner-stop' : 'banner-warn';
+  const bannerTitle = issueCount === 0
+    ? '当前仓位正常，无需调整定投'
+    : `有 ${issueCount} 个品种需要调整定投状态`;
+
+  let html = `
+    <div class="banner ${bannerClass}">
+      <div class="banner-title">${bannerTitle}</div>
+      <div class="banner-sub">总持仓 ¥${fmt(total)}</div>
+    </div>`;
+
+  if (issueCount > 0) {
+    html += `<div class="card"><div class="card-title">操作清单</div>`;
+    if (toPause.length) {
+      html += `<div class="section-label">立即暂停</div>`;
+      toPause.forEach(r => {
+        html += `<div class="checklist-item item-stop">暂停 <b>${r.name}</b> 定投（当前 ${r.pct.toFixed(1)}%，等回落至 ${r.resume}% 以下）</div>`;
+      });
+    }
+    if (toResume.length) {
+      html += `<div class="section-label">可以恢复</div>`;
+      toResume.forEach(r => {
+        html += `<div class="checklist-item item-resume">恢复 <b>${r.name}</b> 定投（当前 ${r.pct.toFixed(1)}%，已回归合理区间）</div>`;
+      });
+    }
+    html += `</div>`;
+  }
+
+  html += `<div class="card"><div class="card-title">各品种状态</div>`;
+  results.forEach(r => {
+    const maxPct = r.stop + 5;
+    const barW = Math.min(r.pct / maxPct * 100, 100).toFixed(1);
+    const targetW = (r.target / maxPct * 100).toFixed(1);
+    const barColor = r.posStatus==='stop'?'#e24b4a':r.posStatus==='warn'?'#ba7517':r.posStatus==='low'?'#378add':'#639922';
+    const pctColor = r.posStatus==='stop'?'var(--red-text)':r.posStatus==='warn'?'var(--amber-text)':r.posStatus==='low'?'var(--blue-text)':'var(--green-text)';
+    const hlClass  = r.dcaClass === 'pause' ? 'hl-pause' : r.dcaClass === 'resume' ? 'hl-resume' : '';
+    const hlPrefix = r.dcaClass === 'pause' ? '建议暂停：' : r.dcaClass === 'resume' ? '建议恢复：' : '';
+
+    html += `
+      <div class="result-row">
+        <div class="result-top">
+          <div class="result-name">${r.name}</div>
+          <div class="result-right">
+            <div class="result-pct" style="color:${pctColor};">${r.pct.toFixed(1)}%</div>
+            <div class="result-amt">¥${fmtInt(r.amt)}</div>
+          </div>
+        </div>
+        <div class="result-meta">${r.sub}</div>
+        <div class="bar-wrap">
+          <div class="bar-fill" style="width:${barW}%;background:${barColor};"></div>
+          <div class="bar-target" style="left:${targetW}%;"></div>
+        </div>
+        <div class="tags">
+          <span class="pill pill-${r.posStatus}">${r.posLabel}</span>
+          <span class="pill ${r.isActive ? 'pill-active' : 'pill-paused'}">${r.isActive ? '定投中' : '已暂停'}</span>
+        </div>
+        <div class="action-text"><span class="${hlClass}">${hlPrefix}</span>${r.actionText}</div>
+      </div>`;
+  });
+  html += `</div>`;
+
+  html += `<div class="card"><div class="card-title">止盈规则速查</div>`;
+  ASSETS.forEach(a => {
+    html += `<div class="rule-line"><b>${a.name}：</b>${a.tp}</div>`;
+  });
+  html += `</div>`;
+
+  document.getElementById('report').innerHTML = html;
+}
+
+function backToInput() {
+  document.getElementById('view-result').style.display = 'none';
+  document.getElementById('view-input').style.display = '';
+}
+
+buildInputs();
+</script>
+</body>
+</html>
