@@ -431,6 +431,7 @@ function saveLocal() { localStorage.setItem(DATA_KEY, JSON.stringify(S)); }
 
 // 统一保存：本地 + OSS
 async function save() {
+  S.lastModified = Date.now(); // 每次保存都更新时间戳
   saveLocal();
   await saveToOSS(S);
 }
@@ -697,13 +698,13 @@ function render() {
 async function syncOnStart() {
   const cloudData = await loadFromOSS();
   if (cloudData && Array.isArray(cloudData.history)) {
-    // 比较本地和云端哪个更新（用历史记录条数 + 余额简单判断）
-    const localScore  = S.history.length * 1000 + S.balance;
-    const cloudScore  = cloudData.history.length * 1000 + cloudData.balance;
-    if (cloudScore >= localScore) {
+    // 用时间戳判断哪边更新，云端更新就用云端数据
+    const localTime = S.lastModified || 0;
+    const cloudTime = cloudData.lastModified || 0;
+    if (cloudTime >= localTime) {
       S = cloudData;
       S.lastAdjustMonth = S.lastAdjustMonth ?? null;
-      saveLocal(); // 把云端数据也写到本地
+      saveLocal();
     }
     render();
   }
