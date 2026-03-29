@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>✨ 我的任务奖励钱包</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@800;900&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<!-- 阿里云 OSS 浏览器 SDK -->
+<script src="https://gosspublic.alicdn.com/aliyun-oss-sdk-6.18.0.min.js"></script>
+<style>
+:root {
+  --bg:       #F5EEE6;
+  --card:     #FFFFFF;
+  --primary:  #C98A5E;
+  --pri-l:    #F0DDD0;
+  --pri-d:    #A86C3F;
+  --text:     #3D2B1F;
+  --muted:    #A09088;
+  --border:   #EDE3D8;
+  --green:    #6DBF8A;
+  --green-l:  #D8F0E2;
+  --red:      #E07070;
+  --red-l:    #FCE8E8;
+  --yellow-l: #FEF6D8;
+  --r: 18px; --rs: 11px;
+  --shadow: 0 2px 12px rgba(100,60,20,0.08);
+}
+* { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+body {
+  font-family:'Noto Sans SC',sans-serif;
+  background:var(--bg); color:var(--text);
+  min-height:100vh; max-width:480px; margin:0 auto; padding-bottom:50px;
+}
+@keyframes up { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+.card { background:var(--card); border-radius:var(--r); padding:18px; margin:10px 14px; box-shadow:var(--shadow); animation:up .4s ease both; }
+.card:nth-child(1){animation-delay:.05s}.card:nth-child(2){animation-delay:.11s}
+.card:nth-child(3){animation-delay:.17s}.card:nth-child(4){animation-delay:.23s}
+.card:nth-child(5){animation-delay:.29s}.card:nth-child(6){animation-delay:.35s}
+
+/* HEADER */
+.hd { padding:28px 18px 6px; display:flex; align-items:center; gap:10px; animation:up .35s ease both; }
+.hd-icon { width:44px;height:44px;background:var(--pri-l);border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0; }
+.hd-title { font-family:'Nunito','Noto Sans SC',sans-serif; font-size:1.35rem; font-weight:900; color:var(--pri-d); line-height:1.2; }
+.hd-sub   { font-size:0.7rem; color:var(--muted); margin-top:2px; letter-spacing:.5px; }
+.hd-btns  { margin-left:auto; display:flex; gap:6px; }
+.ib { width:32px;height:32px;border-radius:9px;border:none;background:var(--pri-l);color:var(--pri-d);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .18s; }
+.ib:hover { background:#E5C9B2; }
+
+/* SYNC STATUS */
+.sync-bar {
+  margin:2px 14px 0;
+  display:flex; align-items:center; gap:6px;
+  font-size:.72rem; color:var(--muted); font-weight:500;
+  min-height:20px;
+}
+.sync-dot {
+  width:7px; height:7px; border-radius:50%; flex-shrink:0;
+  background:var(--muted);
+  transition:background .3s;
+}
+.sync-dot.ok   { background:var(--green); }
+.sync-dot.err  { background:var(--red); }
+.sync-dot.spin {
+  background:var(--primary);
+  animation:pulse .8s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+
+/* BALANCE CARD */
+.bal-label { font-size:.7rem; color:var(--muted); font-weight:700; text-transform:uppercase; letter-spacing:1px; margin-bottom:4px; }
+.bal-amount { font-family:'Nunito',sans-serif; font-weight:900; font-size:3rem; color:var(--pri-d); line-height:1; }
+.bal-amount span { font-size:1.3rem; }
+.bal-sub { font-size:.75rem; color:var(--muted); font-weight:500; margin-top:4px; }
+
+/* SECTION TITLE */
+.sec { font-family:'Nunito','Noto Sans SC',sans-serif; font-weight:900; font-size:1rem; color:var(--text); display:flex; align-items:center; gap:6px; margin-bottom:14px; }
+.pill { font-family:'Noto Sans SC',sans-serif; font-size:.66rem; font-weight:700; padding:2px 8px; border-radius:50px; margin-left:auto; }
+.pill-o { background:var(--pri-l); color:var(--pri-d); }
+.pill-g { background:var(--green-l); color:var(--green); }
+
+/* CHECK-IN */
+.slider-top { display:flex; justify-content:space-between; align-items:baseline; margin:14px 0 8px; }
+.slider-pct { font-family:'Nunito',sans-serif; font-weight:900; font-size:2rem; color:var(--primary); line-height:1; }
+.slider-hint { font-size:.73rem; color:var(--muted); font-weight:500; }
+input[type=range] {
+  width:100%; height:6px; border-radius:3px; appearance:none;
+  background:linear-gradient(to right,var(--primary) 0%,var(--primary) var(--pct,0%),var(--pri-l) var(--pct,0%));
+  outline:none; cursor:pointer;
+}
+input[type=range]::-webkit-slider-thumb {
+  appearance:none; width:20px; height:20px; border-radius:50%;
+  background:var(--pri-d); box-shadow:0 2px 6px rgba(168,108,63,.4);
+  cursor:grab; transition:transform .1s;
+}
+input[type=range]::-webkit-slider-thumb:active { transform:scale(1.18); cursor:grabbing; }
+.r-chips { display:flex; gap:5px; margin-top:10px; flex-wrap:wrap; }
+.r-chip { padding:3px 10px; border-radius:50px; font-size:.7rem; font-weight:700; background:var(--pri-l); color:var(--muted); border:1.5px solid transparent; transition:all .22s; }
+.r-chip.on { color:var(--pri-d); border-color:var(--primary); }
+.checkin-done-box { background:var(--green-l); border-radius:var(--rs); padding:13px; text-align:center; font-size:.85rem; font-weight:700; color:var(--green); }
+
+/* BUTTONS */
+.btn { display:flex; align-items:center; justify-content:center; gap:5px; width:100%; padding:12px; border-radius:var(--rs); border:none; font-family:'Noto Sans SC',sans-serif; font-size:.85rem; font-weight:700; cursor:pointer; transition:all .16s; }
+.btn:active { transform:scale(.97); }
+.btn-p  { background:var(--primary); color:white; box-shadow:0 4px 14px rgba(201,138,94,.3); }
+.btn-p:hover { background:var(--pri-d); }
+.btn-p:disabled { background:var(--pri-l); color:var(--muted); box-shadow:none; cursor:not-allowed; transform:none; filter:none; }
+.btn-g  { background:var(--green); color:white; }
+.btn-g:hover { filter:brightness(.92); }
+.btn-gh { background:var(--bg); color:var(--muted); border:1.5px solid var(--border); }
+.btn-gh:hover { border-color:var(--primary); color:var(--pri-d); }
+.btn-sm { padding:7px 13px; font-size:.75rem; width:auto; border-radius:8px; }
+
+/* SCRATCH CARDS */
+.scratch-row { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:10px; }
+.s-card { position:relative; width:88px; height:56px; border-radius:var(--rs); cursor:pointer; overflow:hidden; flex-shrink:0; user-select:none; }
+.s-back { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; border-radius:var(--rs); }
+.s-amt  { font-family:'Nunito',sans-serif; font-weight:900; font-size:1.3rem; line-height:1; }
+.s-lbl  { font-size:.58rem; font-weight:700; opacity:.7; margin-top:1px; }
+.s-front { position:absolute; inset:0; background:linear-gradient(135deg,#C2B39E 0%,#A8917A 100%); display:flex; flex-direction:column; align-items:center; justify-content:center; border-radius:var(--rs); z-index:2; transform-origin:top; transition:transform .5s cubic-bezier(.23,1,.32,1); overflow:hidden; }
+.s-front::after { content:''; position:absolute; top:-50%; left:-60%; width:35%; height:200%; background:linear-gradient(105deg,transparent,rgba(255,255,255,.28),transparent); animation:shim 2.3s infinite; }
+@keyframes shim { to{left:130%} }
+.s-icon { font-size:1.1rem; }
+.s-txt  { font-size:.58rem; color:rgba(255,255,255,.8); font-weight:700; margin-top:2px; letter-spacing:.5px; }
+.s-card.peeling .s-front { animation:peel .5s cubic-bezier(.23,1,.32,1) forwards; }
+@keyframes peel { to{transform:scaleY(0)} }
+.sc0 .s-back{background:var(--yellow-l);color:#B8900A}
+.sc1 .s-back{background:#FFE8F0;color:#C0507A}
+.sc2 .s-back{background:var(--green-l);color:#3A9A60}
+.sc3 .s-back{background:var(--pri-l);color:var(--pri-d)}
+.no-cards { width:100%; text-align:center; padding:14px 0; font-size:.8rem; color:var(--muted); font-weight:500; }
+.pool-foot { display:flex; justify-content:space-between; font-size:.76rem; color:var(--muted); font-weight:500; }
+.pool-foot strong { color:var(--text); }
+
+/* SPEND */
+.cat-row { display:flex; gap:5px; flex-wrap:wrap; margin-bottom:11px; }
+.cat-chip { padding:5px 10px; border-radius:50px; border:1.5px solid var(--border); background:none; font-size:.72rem; font-weight:700; color:var(--muted); cursor:pointer; transition:all .16s; font-family:'Noto Sans SC',sans-serif; }
+.cat-chip.active { background:var(--pri-l); border-color:var(--primary); color:var(--pri-d); }
+.input-row { display:flex; gap:8px; margin-bottom:10px; }
+.field { flex:1; position:relative; }
+.f-pre { position:absolute; left:10px; top:50%; transform:translateY(-50%); font-size:.82rem; font-weight:700; color:var(--muted); pointer-events:none; }
+input[type=number], input[type=text] { width:100%; padding:10px; border:1.5px solid var(--border); border-radius:var(--rs); font-family:'Noto Sans SC',sans-serif; font-size:.85rem; font-weight:500; color:var(--text); background:var(--bg); outline:none; transition:border-color .18s; }
+.field input[type=number] { padding-left:22px; }
+input:focus { border-color:var(--primary); }
+input[type=number]::-webkit-inner-spin-button { display:none; }
+
+/* ADJUST */
+.adjust-box { display:flex; gap:7px; align-items:center; background:var(--yellow-l); border-radius:var(--rs); padding:10px 11px; margin-top:12px; }
+.adjust-box .field input { background:white; padding:8px 10px; font-size:.82rem; }
+.adjust-note { font-size:.7rem; color:#B8900A; margin-top:5px; font-weight:500; }
+
+/* HISTORY */
+.hist-toggle { width:100%; background:none; border:none; font-family:'Nunito','Noto Sans SC',sans-serif; font-weight:900; font-size:1rem; color:var(--text); cursor:pointer; display:flex; align-items:center; justify-content:space-between; padding:0; }
+.hist-arrow { color:var(--muted); font-size:.78rem; transition:transform .3s; }
+.hist-arrow.open { transform:rotate(180deg); }
+.hist-body { display:none; margin-top:14px; }
+.hist-body.open { display:block; }
+.h-item { padding:11px 0; border-top:1px dashed var(--border); }
+.h-item:first-child { border-top:none; }
+.h-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:5px; }
+.h-date { font-size:.78rem; font-weight:700; }
+.h-pct  { font-family:'Nunito',sans-serif; font-weight:900; font-size:.95rem; color:var(--primary); }
+.h-chips { display:flex; flex-wrap:wrap; gap:4px; margin-bottom:4px; }
+.h-chip { font-size:.66rem; font-weight:700; padding:2px 7px; border-radius:50px; }
+.hc-earn   { background:var(--yellow-l); color:#B8900A; }
+.hc-adjust { background:var(--green-l); color:var(--green); }
+.h-spends  { font-size:.74rem; color:var(--muted); font-weight:500; }
+.h-srow    { display:flex; justify-content:space-between; padding:1px 0; }
+.h-srow span:last-child { color:var(--red); font-weight:700; }
+.empty-h { text-align:center; font-size:.8rem; color:var(--muted); padding:12px 0; }
+
+/* SETUP CARD */
+.setup-card { border:2px dashed var(--primary); background:var(--pri-l); }
+.setup-field { margin-bottom:10px; }
+.setup-label { font-size:.75rem; font-weight:700; color:var(--pri-d); margin-bottom:4px; display:block; }
+.setup-field input { background:white; }
+.setup-hint { font-size:.7rem; color:var(--muted); margin-top:3px; }
+
+/* TOAST */
+#toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(70px); background:rgba(48,28,12,.88); color:white; padding:10px 20px; border-radius:50px; font-size:.8rem; font-weight:700; transition:transform .32s cubic-bezier(.23,1,.32,1),opacity .28s; opacity:0; z-index:999; white-space:nowrap; backdrop-filter:blur(6px); pointer-events:none; }
+#toast.show { transform:translateX(-50%) translateY(0); opacity:1; }
+
+/* MODAL */
+.overlay { display:none; position:fixed; inset:0; background:rgba(61,43,31,.45); backdrop-filter:blur(3px); z-index:100; align-items:center; justify-content:center; }
+.overlay.show { display:flex; }
+.modal { background:var(--card); border-radius:var(--r); padding:26px 22px; max-width:310px; width:calc(100% - 32px); box-shadow:0 14px 38px rgba(61,43,31,.2); text-align:center; }
+.modal-emoji { font-size:2.6rem; margin-bottom:8px; }
+.modal h3 { font-family:'Nunito','Noto Sans SC',sans-serif; font-weight:900; font-size:1.15rem; margin-bottom:5px; }
+.modal p  { font-size:.8rem; color:var(--muted); font-weight:500; margin-bottom:16px; }
+.modal-btns { display:flex; gap:8px; }
+#importText { width:100%; height:88px; border:1.5px solid var(--border); border-radius:var(--rs); padding:9px; font-family:monospace; font-size:.76rem; resize:vertical; outline:none; background:var(--bg); margin-bottom:14px; }
+#importText:focus { border-color:var(--primary); }
+
+/* CONFETTI */
+.cf { position:fixed; border-radius:2px; pointer-events:none; z-index:9999; animation:cfFall 1.6s ease-out forwards; }
+@keyframes cfFall { 0%{opacity:1;transform:translateY(0) rotate(0deg)} 100%{opacity:0;transform:translateY(80vh) rotate(540deg) scale(.4)} }
+</style>
+</head>
+<body>
+
+<div class="hd">
+  <div class="hd-icon">⭐</div>
+  <div>
+    <div class="hd-title">我的任务奖励钱包</div>
+    <div class="hd-sub">完成任务 · 积累奖励 · 快乐消费</div>
+  </div>
+  <div class="hd-btns">
+    <button class="ib" title="导入备份" onclick="openImport()">📥</button>
+    <button class="ib" title="导出备份" onclick="exportData()">📤</button>
+  </div>
+</div>
+
+<!-- 同步状态栏 -->
+<div class="sync-bar">
+  <div class="sync-dot" id="syncDot"></div>
+  <span id="syncText">正在连接云同步…</span>
+</div>
+
+<!-- OSS 配置引导（未配置时显示） -->
+<div class="card setup-card" id="setupCard" style="display:none">
+  <div class="sec" style="color:var(--pri-d)">☁️ 配置云同步</div>
+  <p style="font-size:.8rem;color:var(--muted);margin-bottom:14px;font-weight:500">填入你的阿里云 OSS 信息，即可多端同步数据。不填也可以正常使用（仅本地存储）。</p>
+  <div class="setup-field">
+    <label class="setup-label">地域 Region ID</label>
+    <input type="text" id="cfgRegion" placeholder="例：oss-cn-hangzhou">
+    <div class="setup-hint">阿里云 OSS 控制台 → Bucket → 概览 → Endpoint 里的地域部分</div>
+  </div>
+  <div class="setup-field">
+    <label class="setup-label">Bucket 名称</label>
+    <input type="text" id="cfgBucket" placeholder="例：my-reward-wallet">
+  </div>
+  <div class="setup-field">
+    <label class="setup-label">AccessKey ID</label>
+    <input type="text" id="cfgKeyId" placeholder="LTAI5t…">
+  </div>
+  <div class="setup-field">
+    <label class="setup-label">AccessKey Secret</label>
+    <input type="text" id="cfgKeySecret" placeholder="子账号的 Secret">
+  </div>
+  <button class="btn btn-p" onclick="saveConfig()">💾 保存配置并连接</button>
+  <button class="btn btn-gh" style="margin-top:8px" onclick="skipConfig()">暂时跳过，仅本地使用</button>
+</div>
+
+<!-- 余额 -->
+<div class="card">
+  <div class="bal-label">💰 当前余额</div>
+  <div class="bal-amount"><span>¥</span><span id="balNum">0.00</span></div>
+  <div class="bal-sub" id="balSub">继续完成任务来赚取奖励吧～</div>
+</div>
+
+<!-- 每日打卡 -->
+<div class="card">
+  <div class="sec">📋 今日任务打卡 <span class="pill pill-o" id="todayBadge">未打卡</span></div>
+  <div id="checkinDoneBox" style="display:none">
+    <div class="checkin-done-box">✅ 今日已打卡！完成度 <span id="donePct"></span>%，领取了 <span id="doneN"></span> 张抽奖券</div>
+  </div>
+  <div id="checkinForm">
+    <div class="slider-top">
+      <div class="slider-pct" id="sliderVal">0%</div>
+      <div class="slider-hint" id="sliderHint">拖动滑块输入完成度</div>
+    </div>
+    <input type="range" id="slider" min="0" max="100" value="0">
+    <div class="r-chips">
+      <div class="r-chip" id="chip60">🎫 60-79% → 1张</div>
+      <div class="r-chip" id="chip80">🎫🎫 80-99% → 2张</div>
+      <div class="r-chip" id="chip100">🎫×4 100% → 4张</div>
+    </div>
+    <button class="btn btn-p" style="margin-top:14px" onclick="doCheckin()">✅ 提交今日完成度</button>
+  </div>
+</div>
+
+<!-- 奖券池 -->
+<div class="card">
+  <div class="sec">🎴 待刮奖券 <span class="pill pill-o" id="poolPill">0 张</span></div>
+  <div class="scratch-row" id="scratchRow">
+    <div class="no-cards">暂无待刮奖券，完成任务来领取吧 🌟</div>
+  </div>
+  <div class="pool-foot">
+    <span>剩余奖券: <strong id="poolRemain">0</strong> 张</span>
+    <span>总金额: <strong id="poolTotal">¥0.00</strong></span>
+  </div>
+</div>
+
+<!-- 消费扣除 -->
+<div class="card">
+  <div class="sec">🛍️ 消费扣除</div>
+  <div class="cat-row">
+    <button class="cat-chip active" data-cat="🎮 游戏充值" onclick="selCat(this)">🎮 游戏充值</button>
+    <button class="cat-chip" data-cat="🧸 周边手办"  onclick="selCat(this)">🧸 周边手办</button>
+    <button class="cat-chip" data-cat="📓 手账文具"  onclick="selCat(this)">📓 手账文具</button>
+    <button class="cat-chip" data-cat="🛒 其他"      onclick="selCat(this)">🛒 其他</button>
+  </div>
+  <div class="input-row">
+    <div class="field">
+      <span class="f-pre">¥</span>
+      <input type="number" id="spendAmt" placeholder="金额" min="0.01" step="0.01">
+    </div>
+    <div class="field" style="flex:1.4">
+      <input type="text" id="spendNote" placeholder="备注（可选）">
+    </div>
+  </div>
+  <button class="btn btn-p" onclick="doSpend()">💸 确认消费扣除</button>
+
+  <div class="adjust-box" id="adjustBox">
+    <div class="field">
+      <input type="number" id="adjustAmt" placeholder="奖券系统外的额外奖励" min="0.01" step="0.01">
+    </div>
+    <button class="btn btn-g btn-sm" onclick="doAdjust()">＋ 加入余额</button>
+  </div>
+  <div class="adjust-note" id="adjustNote">🌟 每月可手动调整一次余额（用于系统外奖励）</div>
+</div>
+
+<!-- 历史记录 -->
+<div class="card">
+  <button class="hist-toggle" onclick="toggleHist()">
+    <span>📖 历史记录</span>
+    <span class="hist-arrow" id="histArrow">▼</span>
+  </button>
+  <div class="hist-body" id="histBody"></div>
+</div>
+
+<div id="toast"></div>
+
+<!-- 导入 Modal -->
+<div class="overlay" id="importModal">
+  <div class="modal">
+    <div class="modal-emoji">📥</div>
+    <h3>导入备份</h3>
+    <p>粘贴之前导出的 JSON 内容</p>
+    <textarea id="importText" placeholder='{"balance":0,...}'></textarea>
+    <div class="modal-btns">
+      <button class="btn btn-p" onclick="doImport()">✅ 确认导入</button>
+      <button class="btn btn-gh" onclick="closeImport()">取消</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════
+//  ★ OSS 配置（存在 localStorage 里）
+// ═══════════════════════════════════
+const CFG_KEY  = 'rewardWallet_ossCfg';
+const DATA_KEY = 'rewardWallet_v3';
+const OSS_FILE = 'wallet-data.json'; // OSS 里存数据的文件名，不用改
+
+let ossClient = null;
+let cfg = loadCfg();
+
+function loadCfg() {
+  try { return JSON.parse(localStorage.getItem(CFG_KEY)) || null; } catch(e) { return null; }
+}
+function saveCfg(c) { localStorage.setItem(CFG_KEY, JSON.stringify(c)); cfg = c; }
+
+// 初始化 OSS 客户端
+function initOSS(c) {
+  if (!c || !c.region || !c.bucket || !c.keyId || !c.keySecret) return false;
+  try {
+    ossClient = new OSS({
+      region:          c.region,
+      bucket:          c.bucket,
+      accessKeyId:     c.keyId,
+      accessKeySecret: c.keySecret,
+      secure:          true,
+    });
+    return true;
+  } catch(e) { ossClient = null; return false; }
+}
+
+// ── 从 OSS 读取数据 ──
+async function loadFromOSS() {
+  if (!ossClient) return null;
+  try {
+    setSyncStatus('spin', '正在从云端读取…');
+    const result = await ossClient.get(OSS_FILE);
+    const text = result.content instanceof Blob
+      ? await result.content.text()
+      : (typeof result.content === 'string' ? result.content : new TextDecoder().decode(result.content));
+    const data = JSON.parse(text);
+    setSyncStatus('ok', '云端同步正常 ☁️');
+    return data;
+  } catch(e) {
+    // 文件不存在是正常的（第一次使用）
+    if (e.code === 'NoSuchKey' || (e.status && e.status === 404)) {
+      setSyncStatus('ok', '云端同步正常 ☁️（首次使用）');
+      return null;
+    }
+    setSyncStatus('err', '云端读取失败，使用本地数据');
+    return null;
+  }
+}
+
+// ── 保存数据到 OSS ──
+async function saveToOSS(data) {
+  if (!ossClient) return;
+  try {
+    setSyncStatus('spin', '正在同步到云端…');
+    const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+    await ossClient.put(OSS_FILE, blob);
+    setSyncStatus('ok', '已同步到云端 ✓');
+  } catch(e) {
+    setSyncStatus('err', '云端同步失败，数据已保存到本地');
+    console.error('OSS 保存失败:', e);
+  }
+}
+
+function setSyncStatus(state, text) {
+  const dot  = document.getElementById('syncDot');
+  const label = document.getElementById('syncText');
+  dot.className = 'sync-dot ' + state;
+  label.textContent = text;
+}
+
+// ═══════════════════════════════════
+//  STATE
+// ═══════════════════════════════════
+let S = loadLocalState();
+
+function defState() {
+  return { balance:0, pendingCards:[], history:[], lastAdjustMonth:null };
+}
+function loadLocalState() {
+  try {
+    const r = JSON.parse(localStorage.getItem(DATA_KEY));
+    if (r && Array.isArray(r.history)) {
+      r.lastAdjustMonth = r.lastAdjustMonth ?? null;
+      return r;
+    }
+  } catch(e) {}
+  return defState();
+}
+function saveLocal() { localStorage.setItem(DATA_KEY, JSON.stringify(S)); }
+
+// 统一保存：本地 + OSS
+async function save() {
+  saveLocal();
+  await saveToOSS(S);
+}
+
+// ═══════════════════════════════════
+//  CONFIG UI
+// ═══════════════════════════════════
+function saveConfig() {
+  const c = {
+    region:    document.getElementById('cfgRegion').value.trim(),
+    bucket:    document.getElementById('cfgBucket').value.trim(),
+    keyId:     document.getElementById('cfgKeyId').value.trim(),
+    keySecret: document.getElementById('cfgKeySecret').value.trim(),
+  };
+  if (!c.region || !c.bucket || !c.keyId || !c.keySecret) {
+    toast('请填写全部四项配置信息'); return;
+  }
+  saveCfg(c);
+  if (initOSS(c)) {
+    document.getElementById('setupCard').style.display = 'none';
+    toast('✅ OSS 配置成功，正在同步…');
+    syncOnStart();
+  } else {
+    toast('❌ OSS 初始化失败，请检查配置');
+  }
+}
+function skipConfig() {
+  saveCfg({ skipped: true });
+  document.getElementById('setupCard').style.display = 'none';
+  setSyncStatus('', '仅本地存储（未配置云同步）');
+}
+
+// ═══════════════════════════════════
+//  DATE
+// ═══════════════════════════════════
+function today() { const d=new Date(); return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate()); }
+function thisMonth() { const d=new Date(); return d.getFullYear()+'-'+p2(d.getMonth()+1); }
+function p2(n) { return String(n).padStart(2,'0'); }
+function rnd(a,b) { return Math.round((Math.random()*(b-a)+a)*100)/100; }
+function r2(n) { return Math.round(n*100)/100; }
+function todayRec() { return S.history.find(h=>h.date===today()); }
+
+// ═══════════════════════════════════
+//  SLIDER
+// ═══════════════════════════════════
+let sliderV = 0;
+document.getElementById('slider').addEventListener('input', function() {
+  sliderV = +this.value;
+  this.style.setProperty('--pct', sliderV+'%');
+  document.getElementById('sliderVal').textContent = sliderV+'%';
+  let hint = '拖动滑块输入完成度';
+  if (sliderV===100) hint='🎉 完美！可得 4 张奖券';
+  else if (sliderV>=80) hint='🌟 很棒！可得 2 张奖券';
+  else if (sliderV>=60) hint='✨ 不错！可得 1 张奖券';
+  document.getElementById('sliderHint').textContent = hint;
+  document.getElementById('chip60').className='r-chip'+(sliderV>=60?' on':'');
+  document.getElementById('chip80').className='r-chip'+(sliderV>=80?' on':'');
+  document.getElementById('chip100').className='r-chip'+(sliderV===100?' on':'');
+});
+
+// ═══════════════════════════════════
+//  CHECK-IN
+// ═══════════════════════════════════
+function doCheckin() {
+  const rec = todayRec();
+  if (rec && rec.completion !== null) { toast('今天已经打卡啦 ✅'); return; }
+  if (!sliderV) { toast('请先拖动滑块输入完成度'); return; }
+  const pct = sliderV;
+  const n = pct===100?4 : pct>=80?2 : pct>=60?1 : 0;
+  if (!n) { toast('完成度不足 60%，继续加油 💪'); return; }
+  const cards = Array.from({length:n}, (_,i) => ({ id:Date.now()+i, amount:rnd(1,10) }));
+  S.pendingCards.push(...cards);
+  if (rec) {
+    rec.completion=pct; rec.cardsGiven=n; rec.cardAmounts=cards.map(c=>c.amount);
+  } else {
+    S.history.unshift({ date:today(), completion:pct, cardsGiven:n, cardAmounts:cards.map(c=>c.amount), spending:[], adjustments:[] });
+  }
+  save(); render(); confetti();
+  toast(`🎉 获得 ${n} 张奖券！快去刮一刮`);
+}
+
+// ═══════════════════════════════════
+//  SCRATCH
+// ═══════════════════════════════════
+function scratch(id) {
+  const card = S.pendingCards.find(c=>c.id===id);
+  if (!card) return;
+  const el = document.querySelector(`[data-id="${id}"]`);
+  if (el) {
+    el.classList.add('peeling');
+    setTimeout(() => {
+      S.balance = r2(S.balance + card.amount);
+      S.pendingCards = S.pendingCards.filter(c=>c.id!==id);
+      save(); render(); confetti();
+      toast(`💰 刮出 ¥${card.amount.toFixed(2)}！已入账`);
+    }, 480);
+  }
+}
+
+// ═══════════════════════════════════
+//  SPEND
+// ═══════════════════════════════════
+let catVal = '🎮 游戏充值';
+function selCat(btn) {
+  document.querySelectorAll('.cat-chip').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active'); catVal = btn.dataset.cat;
+}
+function doSpend() {
+  const amt = parseFloat(document.getElementById('spendAmt').value);
+  const note = document.getElementById('spendNote').value.trim();
+  if (!amt||isNaN(amt)||amt<=0) { toast('请输入有效金额'); return; }
+  if (amt > S.balance) { toast(`❌ 余额不足！当前余额 ¥${S.balance.toFixed(2)}`); return; }
+  S.balance = r2(S.balance - amt);
+  ensureTodayRec().spending.push({ amount:amt, category:catVal, note });
+  save(); render();
+  document.getElementById('spendAmt').value = '';
+  document.getElementById('spendNote').value = '';
+  toast(`✅ 已扣除 ¥${amt.toFixed(2)}`);
+}
+
+// ═══════════════════════════════════
+//  MONTHLY ADJUST
+// ═══════════════════════════════════
+function doAdjust() {
+  const m = thisMonth();
+  if (S.lastAdjustMonth === m) { toast('本月调整额度已用完，下月再来 🙏'); return; }
+  const amt = parseFloat(document.getElementById('adjustAmt').value);
+  if (!amt||isNaN(amt)||amt<=0) { toast('请输入有效金额'); return; }
+  S.balance = r2(S.balance + amt);
+  S.lastAdjustMonth = m;
+  ensureTodayRec().adjustments.push({ amount:amt, note:'系统外奖励' });
+  save(); render();
+  document.getElementById('adjustAmt').value = '';
+  toast(`🌟 +¥${amt.toFixed(2)} 已加入余额！`);
+}
+
+function ensureTodayRec() {
+  let rec = todayRec();
+  if (!rec) { rec={date:today(),completion:null,cardsGiven:0,cardAmounts:[],spending:[],adjustments:[]}; S.history.unshift(rec); }
+  if (!rec.adjustments) rec.adjustments=[];
+  if (!rec.spending) rec.spending=[];
+  return rec;
+}
+
+// ═══════════════════════════════════
+//  HISTORY
+// ═══════════════════════════════════
+function toggleHist() {
+  document.getElementById('histBody').classList.toggle('open');
+  document.getElementById('histArrow').classList.toggle('open');
+}
+
+// ═══════════════════════════════════
+//  BACKUP
+// ═══════════════════════════════════
+function exportData() {
+  const blob = new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url; a.download=`reward-backup-${today()}.json`; a.click();
+  URL.revokeObjectURL(url);
+  toast('📤 备份已导出');
+}
+function openImport()  { document.getElementById('importModal').classList.add('show'); }
+function closeImport() { document.getElementById('importModal').classList.remove('show'); document.getElementById('importText').value=''; }
+function doImport() {
+  try {
+    const p = JSON.parse(document.getElementById('importText').value.trim());
+    if (typeof p.balance==='number' && Array.isArray(p.history)) {
+      S=p; S.lastAdjustMonth=S.lastAdjustMonth??null;
+      save(); render(); closeImport();
+      toast('✅ 数据导入成功！');
+    } else { toast('❌ 格式有误'); }
+  } catch(e) { toast('❌ JSON 解析失败'); }
+}
+
+// ═══════════════════════════════════
+//  TOAST
+// ═══════════════════════════════════
+let toastT;
+function toast(msg) {
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove('show'),2600);
+}
+
+// ═══════════════════════════════════
+//  CONFETTI
+// ═══════════════════════════════════
+function confetti() {
+  const cols=['#C98A5E','#F0DDD0','#6DBF8A','#F5C842','#E8A87C','#FFD6E7'];
+  for(let i=0;i<20;i++) setTimeout(()=>{
+    const el=document.createElement('div'); el.className='cf';
+    el.style.cssText=`left:${Math.random()*100}vw;top:-10px;background:${cols[Math.floor(Math.random()*cols.length)]};width:${7+Math.random()*6}px;height:${8+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'};animation-delay:${Math.random()*.3}s;animation-duration:${1.1+Math.random()*.7}s;`;
+    document.body.appendChild(el); setTimeout(()=>el.remove(),2000);
+  },i*28);
+}
+
+// ═══════════════════════════════════
+//  RENDER
+// ═══════════════════════════════════
+function render() {
+  const bal = S.balance;
+  document.getElementById('balNum').textContent = bal.toFixed(2);
+  document.getElementById('balSub').textContent =
+    bal<=0 ? '继续完成任务来赚取奖励吧～' :
+    bal<20 ? '再攒一攒，就能买点好东西了 🌟' :
+    bal<50 ? '攒了不少啦，可以去消费啦 🎉' :
+             '哇！余额超丰厚，好好犒劳自己 🎁';
+
+  const rec = todayRec();
+  const done = rec && rec.completion !== null;
+  document.getElementById('todayBadge').textContent = done ? '✅ 已打卡' : '未打卡';
+  document.getElementById('todayBadge').className   = 'pill '+(done?'pill-g':'pill-o');
+  document.getElementById('checkinDoneBox').style.display = done ? 'block' : 'none';
+  document.getElementById('checkinForm').style.display    = done ? 'none'  : 'block';
+  if (done) {
+    document.getElementById('donePct').textContent = rec.completion;
+    document.getElementById('doneN').textContent   = rec.cardsGiven;
+  }
+
+  const pending = S.pendingCards;
+  document.getElementById('poolPill').textContent   = pending.length+' 张';
+  document.getElementById('poolRemain').textContent = pending.length;
+  document.getElementById('poolTotal').textContent  = '¥'+pending.reduce((a,c)=>a+c.amount,0).toFixed(2);
+  const row = document.getElementById('scratchRow');
+  row.innerHTML = pending.length===0
+    ? '<div class="no-cards">暂无待刮奖券，完成任务来领取吧 🌟</div>'
+    : pending.map((c,i)=>`
+      <div class="s-card sc${i%4}" data-id="${c.id}" onclick="scratch(${c.id})">
+        <div class="s-back"><div class="s-amt">¥${c.amount.toFixed(2)}</div><div class="s-lbl">恭喜获得</div></div>
+        <div class="s-front"><div class="s-icon">🎴</div><div class="s-txt">点击揭晓</div></div>
+      </div>`).join('');
+
+  const used = S.lastAdjustMonth === thisMonth();
+  const abox = document.getElementById('adjustBox');
+  abox.style.opacity = used ? '0.5' : '1';
+  abox.querySelector('input').disabled  = used;
+  abox.querySelector('button').disabled = used;
+  document.getElementById('adjustNote').textContent = used
+    ? `✅ 本月（${thisMonth()}）手动调整额度已使用`
+    : '🌟 每月可手动调整一次余额（用于系统外奖励）';
+
+  const hb = document.getElementById('histBody');
+  if (!S.history.length) { hb.innerHTML='<div class="empty-h">还没有记录，快去打第一张卡吧！</div>'; return; }
+  hb.innerHTML = S.history.map(h=>{
+    const earns  = (h.cardAmounts||[]).map(a=>`<span class="h-chip hc-earn">+¥${a.toFixed(2)}</span>`).join('');
+    const adjs   = (h.adjustments||[]).map(a=>`<span class="h-chip hc-adjust">📥 +¥${a.amount.toFixed(2)}</span>`).join('');
+    const spends = (h.spending||[]).map(s=>`<div class="h-srow"><span>${s.category}${s.note?' · '+s.note:''}</span><span>-¥${s.amount.toFixed(2)}</span></div>`).join('');
+    const pctHtml = h.completion!==null
+      ? `<span class="h-pct">${h.completion}%</span>`
+      : `<span style="font-size:.72rem;color:var(--muted);font-weight:500">仅记账</span>`;
+    return `<div class="h-item">
+      <div class="h-row"><span class="h-date">${h.date}</span>${pctHtml}</div>
+      ${earns||adjs?`<div class="h-chips">${earns}${adjs}</div>`:''}
+      ${spends?`<div class="h-spends">${spends}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════
+//  STARTUP：优先拉云端数据
+// ═══════════════════════════════════
+async function syncOnStart() {
+  const cloudData = await loadFromOSS();
+  if (cloudData && Array.isArray(cloudData.history)) {
+    // 比较本地和云端哪个更新（用历史记录条数 + 余额简单判断）
+    const localScore  = S.history.length * 1000 + S.balance;
+    const cloudScore  = cloudData.history.length * 1000 + cloudData.balance;
+    if (cloudScore >= localScore) {
+      S = cloudData;
+      S.lastAdjustMonth = S.lastAdjustMonth ?? null;
+      saveLocal(); // 把云端数据也写到本地
+    }
+    render();
+  }
+}
+
+async function init() {
+  render(); // 先用本地数据渲染，让页面立即可用
+
+  if (!cfg) {
+    // 第一次使用，引导配置
+    document.getElementById('setupCard').style.display = 'block';
+    setSyncStatus('', '尚未配置云同步');
+    return;
+  }
+  if (cfg.skipped) {
+    setSyncStatus('', '仅本地存储（未配置云同步）');
+    return;
+  }
+
+  // 填回配置表单（方便以后修改）
+  document.getElementById('cfgRegion').value    = cfg.region    || '';
+  document.getElementById('cfgBucket').value    = cfg.bucket    || '';
+  document.getElementById('cfgKeyId').value     = cfg.keyId     || '';
+  document.getElementById('cfgKeySecret').value = cfg.keySecret || '';
+
+  if (initOSS(cfg)) {
+    await syncOnStart();
+  } else {
+    setSyncStatus('err', 'OSS 配置有误，使用本地数据');
+    document.getElementById('setupCard').style.display = 'block';
+  }
+}
+
+init();
+</script>
+</body>
+</html>
