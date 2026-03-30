@@ -252,6 +252,7 @@ input[type=number]::-webkit-inner-spin-button{display:none}
       <div class="r-chip" id="chip80">🎫🎫 80-99% → 2张</div>
       <div class="r-chip" id="chip100">🎫×4 100% → 4张</div>
     </div>
+    <div id="streakHint" style="margin-top:10px;font-size:.75rem;font-weight:700;color:var(--muted)"></div>
     <button class="btn btn-p" style="margin-top:14px" onclick="doCheckin()">✅ 提交今日完成度</button>
   </div>
 </div>
@@ -488,15 +489,39 @@ document.getElementById('slider').addEventListener('input',function(){
 function doCheckin(){
   const rec=todayRec();
   if(rec&&rec.completion!==null){toast('今天已经打卡啦 ✅');return}
-  if(!sliderV){toast('请先拖动滑块输入完成度');return}
-  const pct=sliderV,n=pct===100?4:pct>=80?2:pct>=60?1:0;
-  if(!n){toast('完成度不足 60%，继续加油 💪');return}
-  const cards=Array.from({length:n},(_,i)=>({id:Date.now()+i,amount:rnd(1,10)}));
-  S.pendingCards.push(...cards);
+  if(!sliderV&&sliderV!==0){toast('请先拖动滑块输入完成度');return}
+  const pct=sliderV;
+  let n=pct===100?4:pct>=80?2:pct>=60?1:0;
+
+  // 连续3天≥80%补偿：检查昨天和前天
+  let streakBonus=false;
+  if(pct>=80){
+    const sorted=[...S.history].filter(h=>h.completion!==null).sort((a,b)=>b.date.localeCompare(a.date));
+    // 找今天之前最近2条
+    const prev=sorted.slice(0,2);
+    if(prev.length===2&&prev[0].completion>=80&&prev[1].completion>=80){
+      streakBonus=true;
+      n+=1;
+    }
+  }
+
   const r=ensureTodayRec();
-  r.completion=pct;r.cardsGiven=n;r.cardAmounts=cards.map(c=>c.amount);
-  save();render();renderChart();confetti();
-  toast(`🎉 获得 ${n} 张奖券！快去刮一刮`);
+  r.completion=pct;r.cardsGiven=n;r.streakBonus=streakBonus;
+
+  if(n>0){
+    const cards=Array.from({length:n},(_,i)=>({id:Date.now()+i,amount:rnd(1,10)}));
+    S.pendingCards.push(...cards);
+    r.cardAmounts=cards.map(c=>c.amount);
+  } else {
+    r.cardAmounts=[];
+  }
+
+  save();render();renderChart();
+  if(n>0) confetti();
+
+  if(pct<60) toast('📝 已打卡记录，继续加油！');
+  else if(streakBonus) toast(`🔥 连续3天≥80%！获得 ${n} 张奖券（含1张连续奖励）`);
+  else toast(`🎉 获得 ${n} 张奖券！快去刮一刮`);
 }
 
 // ═══════════════════════════════
@@ -748,6 +773,17 @@ function render(){
   document.getElementById('checkinDoneBox').style.display=done?'block':'none';
   document.getElementById('checkinForm').style.display=done?'none':'block';
   if(done){document.getElementById('donePct').textContent=rec.completion;document.getElementById('doneN').textContent=rec.cardsGiven}
+
+  // streak hint
+  const streakEl=document.getElementById('streakHint');
+  if(!done){
+    const sorted=[...S.history].filter(h=>h.completion!==null).sort((a,b)=>b.date.localeCompare(a.date));
+    const prev=sorted.slice(0,2);
+    const count=prev.filter(h=>h.completion>=80).length;
+    if(count===0) streakEl.textContent='🔥 连续达标进度：0 / 3（连续3天≥80%可额外获得1张奖券）';
+    else if(count===1) streakEl.textContent='🔥 连续达标进度：1 / 3，再坚持2天！';
+    else if(count===2) streakEl.textContent='🔥 连续达标进度：2 / 3，今天≥80%即可触发奖励！';
+  } else { streakEl.textContent=''; }
 
   // scratch
   const pending=S.pendingCards;
