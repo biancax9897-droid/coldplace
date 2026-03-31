@@ -328,25 +328,26 @@ input[type=number]::-webkit-inner-spin-button{display:none}
     </div>
   </div>
   <div id="depositFormBox">
-    <p style="font-size:.78rem;color:var(--muted);font-weight:500;margin-bottom:12px">锁定一笔余额，到期后自动解锁并获得奖券奖励，同时只能有一笔。</p>
+    <p style="font-size:.78rem;color:var(--muted);font-weight:500;margin-bottom:10px">锁定一笔余额，到期后自动解锁并获得奖券奖励，同时只能有一笔。</p>
+    <p style="font-size:.72rem;color:#B8900A;font-weight:700;background:var(--yellow-l);padding:8px 11px;border-radius:var(--rs);margin-bottom:12px">🎫 奖券数按「存入金额×期限」决定：存得越多、锁得越久，奖励越多</p>
     <div class="deposit-options" id="depOptions">
-      <div class="dep-opt active" onclick="selDep(this,7,1)">
+      <div class="dep-opt active" onclick="selDep(this,7)">
         <div class="dep-opt-days">7天</div>
-        <div class="dep-opt-reward">到期 +1张奖券</div>
+        <div class="dep-opt-reward" id="depReward7">+? 张</div>
       </div>
-      <div class="dep-opt" onclick="selDep(this,14,2)">
+      <div class="dep-opt" onclick="selDep(this,14)">
         <div class="dep-opt-days">14天</div>
-        <div class="dep-opt-reward">到期 +2张奖券</div>
+        <div class="dep-opt-reward" id="depReward14">+? 张</div>
       </div>
-      <div class="dep-opt" onclick="selDep(this,30,4)">
+      <div class="dep-opt" onclick="selDep(this,30)">
         <div class="dep-opt-days">30天</div>
-        <div class="dep-opt-reward">到期 +4张奖券</div>
+        <div class="dep-opt-reward" id="depReward30">+? 张</div>
       </div>
     </div>
     <div class="input-row">
       <div class="field">
         <span class="f-pre">¥</span>
-        <input type="number" id="depAmt" placeholder="存入金额" min="1" step="1">
+        <input type="number" id="depAmt" placeholder="存入金额" min="1" step="1" oninput="updateDepRewardPreview()">
       </div>
       <button class="btn btn-b btn-sm" onclick="createDeposit()" style="flex-shrink:0">🏦 存入</button>
     </div>
@@ -356,18 +357,14 @@ input[type=number]::-webkit-inner-spin-button{display:none}
 <!-- 今日额外奖励 -->
 <div class="card">
   <div class="sec">🌟 今日任务额外奖励 <span class="pill pill-b" id="extraBadge">未添加</span></div>
-  <div id="extraDoneBox" style="display:none">
-    <div class="extra-done-box">
-      <span id="extraDoneText"></span>
-      <span style="font-size:.72rem;opacity:.7">今日已记录</span>
-    </div>
-  </div>
+  <div id="extraTodayList"></div>
   <div id="extraForm">
-    <p style="font-size:.78rem;color:var(--muted);font-weight:500;margin-bottom:12px">完成了奖券系统外的额外任务？每日限一次。</p>
+    <p style="font-size:.78rem;color:var(--muted);font-weight:500;margin-bottom:8px">完成挑战任务获得奖励，单次建议 ≤¥10，每日上限 ¥20。</p>
+    <div style="font-size:.75rem;font-weight:700;color:#4A8FC0;margin-bottom:10px" id="extraCapHint"></div>
     <div class="input-row">
       <div class="field">
         <span class="f-pre">¥</span>
-        <input type="number" id="extraAmt" placeholder="奖励金额" min="0.01" step="0.01">
+        <input type="number" id="extraAmt" placeholder="奖励金额" min="0.01" step="0.01" max="10">
       </div>
     </div>
     <button class="btn btn-p" onclick="doExtra()">＋ 加入余额</button>
@@ -525,6 +522,8 @@ function loadLocalState(){
       r.wishlist=r.wishlist??[];r.lastModified=r.lastModified??0;
       r.wishFund=r.wishFund??0;r.lastMonthlyDeposit=r.lastMonthlyDeposit??null;
       r.deposit=r.deposit??null;
+      // 迁移旧版 extra 字段到 extras 数组
+      r.history.forEach(h=>{if(!h.extras){h.extras=h.extra?[h.extra]:[];}});
       return r;
     }
   }catch(e){}
@@ -542,8 +541,9 @@ function r2(n){return Math.round(n*100)/100}
 function todayRec(){return S.history.find(h=>h.date===today())}
 function ensureTodayRec(){
   let rec=todayRec();
-  if(!rec){rec={date:today(),completion:null,cardsGiven:0,cardAmounts:[],spending:[],extra:null,event:null,wishFundChanges:[]};S.history.unshift(rec)}
+  if(!rec){rec={date:today(),completion:null,cardsGiven:0,cardAmounts:[],spending:[],extras:[],event:null,wishFundChanges:[]};S.history.unshift(rec)}
   if(!rec.spending)rec.spending=[];
+  if(!rec.extras)rec.extras=[];
   if(!rec.wishFundChanges)rec.wishFundChanges=[];
   return rec;
 }
@@ -683,25 +683,40 @@ function scratch(id){
 // ═══════════════════════════════
 //  DEPOSIT
 // ═══════════════════════════════
-let selDepDays=7,selDepReward=1;
-function selDep(el,days,reward){
-  selDepDays=days;selDepReward=reward;
+let selDepDays=7;
+function selDep(el,days){
+  selDepDays=days;
   document.querySelectorAll('.dep-opt').forEach(e=>e.classList.remove('active'));
   el.classList.add('active');
+  updateDepRewardPreview();
+}
+function calcDepReward(amt,days){
+  let base=amt>=100?4:amt>=30?2:1;
+  if(days===14)base=amt>=100?4:amt>=30?3:1;
+  if(days===30)base=amt>=100?6:amt>=30?4:2;
+  return base;
+}
+function updateDepRewardPreview(){
+  const amt=parseFloat(document.getElementById('depAmt').value)||0;
+  [7,14,30].forEach(d=>{
+    const el=document.getElementById('depReward'+d);
+    if(el)el.textContent=amt>0?`+${calcDepReward(amt,d)} 张奖券`:`+? 张`;
+  });
 }
 function createDeposit(){
   if(S.deposit){toast('已有一笔存款进行中 🏦');return}
   const amt=parseFloat(document.getElementById('depAmt').value);
   if(!amt||isNaN(amt)||amt<1){toast('请输入有效金额（最低¥1）');return}
   if(amt>S.balance){toast(`❌ 余额不足！当前 ¥${S.balance.toFixed(2)}`);return}
+  const reward=calcDepReward(amt,selDepDays);
   S.balance=r2(S.balance-amt);
   const startDate=today();
   const end=new Date();end.setDate(end.getDate()+selDepDays);
   const endDate=end.getFullYear()+'-'+p2(end.getMonth()+1)+'-'+p2(end.getDate());
-  S.deposit={amount:amt,days:selDepDays,reward:selDepReward,startDate,endDate,matured:false};
+  S.deposit={amount:amt,days:selDepDays,reward,startDate,endDate,matured:false};
   document.getElementById('depAmt').value='';
   save();render();
-  toast(`🏦 已存入 ¥${amt.toFixed(2)}，${selDepDays}天后到期获得${selDepReward}张奖券`);
+  toast(`🏦 已存入 ¥${amt.toFixed(2)}，${selDepDays}天后到期获得 ${reward} 张奖券`);
 }
 function checkDepositMaturity(){
   if(!S.deposit||S.deposit.matured)return;
@@ -726,16 +741,19 @@ function claimDeposit(){
 //  EXTRA REWARD
 // ═══════════════════════════════
 function doExtra(){
-  const rec=todayRec();
-  if(rec&&rec.extra!=null){toast('今天的额外奖励已记录啦 ✅');return}
   const amt=parseFloat(document.getElementById('extraAmt').value);
   if(!amt||isNaN(amt)||amt<=0){toast('请输入有效金额');return}
+  if(amt>10){toast('单次最多 ¥10 哦');return}
+  const rec=ensureTodayRec();
+  const todayTotal=(rec.extras||[]).reduce((a,e)=>a+e.amount,0);
+  if(todayTotal>=20){toast('今日额外奖励已达上限 ¥20 🙏');return}
+  if(todayTotal+amt>20){toast(`今日还可添加 ¥${r2(20-todayTotal)}，超出上限啦`);return}
   S.balance=r2(S.balance+amt);
-  const r=ensureTodayRec();
-  r.extra={amount:amt,note:'今日额外任务奖励'};
+  rec.extras.push({amount:amt});
   document.getElementById('extraAmt').value='';
   save();render();renderChart();confetti();
-  toast(`🌟 +¥${amt.toFixed(2)} 已加入余额！`);
+  const newTotal=r2(todayTotal+amt);
+  toast(`🌟 +¥${amt.toFixed(2)} 已加入！今日累计 ¥${newTotal.toFixed(2)}`);
 }
 
 // ═══════════════════════════════
@@ -937,12 +955,27 @@ function render(){
   }else{document.getElementById('depositPill').textContent='未存入';document.getElementById('depositPill').className='pill pill-y'}
 
   // extra
-  const hasExtra=rec&&rec.extra!=null;
-  document.getElementById('extraBadge').textContent=hasExtra?'✅ 已添加':'未添加';
-  document.getElementById('extraBadge').className='pill '+(hasExtra?'pill-g':'pill-b');
-  document.getElementById('extraDoneBox').style.display=hasExtra?'block':'none';
-  document.getElementById('extraForm').style.display=hasExtra?'none':'block';
-  if(hasExtra)document.getElementById('extraDoneText').textContent=`+¥${rec.extra.amount.toFixed(2)}`;
+  const extrasToday=(rec&&rec.extras)||[];
+  const extraTotal=r2(extrasToday.reduce((a,e)=>a+e.amount,0));
+  const extraRemain=r2(20-extraTotal);
+  document.getElementById('extraBadge').textContent=extraTotal>0?`今日 +¥${extraTotal.toFixed(2)}`:'未添加';
+  document.getElementById('extraBadge').className='pill '+(extraTotal>0?'pill-g':'pill-b');
+  // today's extra list
+  const etl=document.getElementById('extraTodayList');
+  if(extrasToday.length>0){
+    etl.innerHTML=`<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px">${extrasToday.map((e,i)=>`<span class="h-chip hc-extra">+¥${e.amount.toFixed(2)}</span>`).join('')}<span style="font-size:.72rem;color:var(--muted);font-weight:600;align-self:center">共 ¥${extraTotal.toFixed(2)}</span></div>`;
+  }else etl.innerHTML='';
+  // cap hint
+  const capHint=document.getElementById('extraCapHint');
+  if(extraRemain<=0){
+    capHint.textContent='✅ 今日上限 ¥20 已达到';
+    document.getElementById('extraForm').querySelector('button').disabled=true;
+    document.getElementById('extraForm').querySelector('button').style.opacity='0.5';
+  }else{
+    capHint.textContent=`今日还可添加 ¥${extraRemain.toFixed(2)}（上限¥20）`;
+    document.getElementById('extraForm').querySelector('button').disabled=false;
+    document.getElementById('extraForm').querySelector('button').style.opacity='1';
+  }
 
   // wishlist
   document.getElementById('wishPill').textContent=S.wishlist.length+' 件';
@@ -958,12 +991,13 @@ function render(){
   if(!S.history.length){hb.innerHTML='<div class="empty-h">还没有记录，快去打第一张卡吧！</div>';return}
   hb.innerHTML=S.history.map(h=>{
     const earns=(h.cardAmounts||[]).map(a=>`<span class="h-chip hc-earn">🎫+¥${a.toFixed(2)}</span>`).join('');
-    const extra=h.extra?`<span class="h-chip hc-extra">🌟+¥${h.extra.amount.toFixed(2)}</span>`:'';
+    const extras=(h.extras||[]);
+    const extraChip=extras.length>0?`<span class="h-chip hc-extra">🌟+¥${extras.reduce((a,e)=>a+e.amount,0).toFixed(2)}</span>`:'';
     const ev=h.event?`<span class="h-chip hc-event-${h.event.type}">${h.event.icon}${h.event.title}</span>`:'';
     const dep2=h.depositClaim?`<span class="h-chip hc-deposit">🏦 存款到期 +¥${h.depositClaim.amount.toFixed(2)}</span>`:'';
     const spends=(h.spending||[]).map(s=>`<div class="h-srow"><span>${s.category}${s.note?' · '+s.note:''}</span><span>-¥${s.amount.toFixed(2)}</span></div>`).join('');
     const pctHtml=h.completion!==null?`<span class="h-pct">${h.completion}%</span>`:`<span style="font-size:.72rem;color:var(--muted);font-weight:500">仅记账</span>`;
-    return`<div class="h-item"><div class="h-row"><span class="h-date">${h.date}</span>${pctHtml}</div>${earns||extra||ev||dep2?`<div class="h-chips">${earns}${extra}${ev}${dep2}</div>`:''}${spends?`<div class="h-spends">${spends}</div>`:''}</div>`;
+    return`<div class="h-item"><div class="h-row"><span class="h-date">${h.date}</span>${pctHtml}</div>${earns||extraChip||ev||dep2?`<div class="h-chips">${earns}${extraChip}${ev}${dep2}</div>`:''}${spends?`<div class="h-spends">${spends}</div>`:''}</div>`;
   }).join('');
 }
 
