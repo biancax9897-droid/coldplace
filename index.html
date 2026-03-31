@@ -9,23 +9,23 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
 :root {
-  --bg:#F5EEE6; --card:#FFF; --primary:#C98A5E; --pri-l:#F0DDD0; --pri-d:#A86C3F;
-  --text:#3D2B1F; --muted:#A09088; --border:#EDE3D8;
-  --green:#6DBF8A; --green-l:#D8F0E2;
-  --red:#E07070; --red-l:#FCE8E8;
-  --yellow:#F5C842; --yellow-l:#FEF6D8;
-  --blue:#7EB8E8; --blue-l:#E0F0FC;
-  --r:18px; --rs:11px;
-  --shadow:0 2px 12px rgba(100,60,20,.08);
+  --bg:#F5EEE6;--card:#FFF;--primary:#C98A5E;--pri-l:#F0DDD0;--pri-d:#A86C3F;
+  --text:#3D2B1F;--muted:#A09088;--border:#EDE3D8;
+  --green:#6DBF8A;--green-l:#D8F0E2;
+  --red:#E07070;--red-l:#FCE8E8;
+  --yellow:#F5C842;--yellow-l:#FEF6D8;
+  --blue:#7EB8E8;--blue-l:#E0F0FC;
+  --r:18px;--rs:11px;--shadow:0 2px 12px rgba(100,60,20,.08);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:'Noto Sans SC',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;max-width:480px;margin:0 auto;padding-bottom:56px}
 @keyframes up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
 .card{background:var(--card);border-radius:var(--r);padding:18px;margin:10px 14px;box-shadow:var(--shadow);animation:up .4s ease both}
-.card:nth-child(1){animation-delay:.05s}.card:nth-child(2){animation-delay:.10s}
-.card:nth-child(3){animation-delay:.15s}.card:nth-child(4){animation-delay:.20s}
-.card:nth-child(5){animation-delay:.25s}.card:nth-child(6){animation-delay:.30s}
-.card:nth-child(7){animation-delay:.35s}.card:nth-child(8){animation-delay:.40s}
+.card:nth-child(1){animation-delay:.04s}.card:nth-child(2){animation-delay:.08s}
+.card:nth-child(3){animation-delay:.12s}.card:nth-child(4){animation-delay:.16s}
+.card:nth-child(5){animation-delay:.20s}.card:nth-child(6){animation-delay:.24s}
+.card:nth-child(7){animation-delay:.28s}.card:nth-child(8){animation-delay:.32s}
+.card:nth-child(9){animation-delay:.36s}.card:nth-child(10){animation-delay:.40s}
 
 /* HEADER */
 .hd{padding:28px 18px 4px;display:flex;align-items:center;gap:10px;animation:up .35s ease both}
@@ -45,9 +45,9 @@ body{font-family:'Noto Sans SC',sans-serif;background:var(--bg);color:var(--text
 
 /* BALANCE */
 .bal-label{font-size:.7rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
-.bal-amount{font-family:'Nunito',sans-serif;font-weight:900;font-size:3rem;color:var(--pri-d);line-height:1}
-.bal-amount span{font-size:1.3rem}
-.bal-sub{font-size:.75rem;color:var(--muted);font-weight:500;margin-top:4px}
+.bal-amount{font-family:'Nunito',sans-serif;font-weight:900;font-size:2.8rem;color:var(--pri-d);line-height:1}
+.bal-amount span{font-size:1.2rem}
+.bal-sub{font-size:.72rem;color:var(--muted);font-weight:500;margin-top:4px}
 
 /* SEC TITLE */
 .sec{font-family:'Nunito','Noto Sans SC',sans-serif;font-weight:900;font-size:1rem;color:var(--text);display:flex;align-items:center;gap:6px;margin-bottom:14px}
@@ -55,6 +55,17 @@ body{font-family:'Noto Sans SC',sans-serif;background:var(--bg);color:var(--text
 .pill-o{background:var(--pri-l);color:var(--pri-d)}
 .pill-g{background:var(--green-l);color:var(--green)}
 .pill-b{background:var(--blue-l);color:#4A8FC0}
+.pill-y{background:var(--yellow-l);color:#B8900A}
+
+/* WEATHER BANNER */
+.weather-banner{display:flex;align-items:center;gap:10px;padding:10px 13px;border-radius:var(--rs);margin-bottom:14px;font-size:.82rem;font-weight:700}
+.wb-sunny{background:var(--yellow-l);color:#B8900A}
+.wb-cloudy{background:var(--pri-l);color:var(--pri-d)}
+.wb-rainy{background:var(--blue-l);color:#4A8FC0}
+.wb-icon{font-size:1.4rem;flex-shrink:0}
+.wb-info{flex:1}
+.wb-title{font-size:.85rem;font-weight:900}
+.wb-desc{font-size:.7rem;opacity:.8;margin-top:1px;font-weight:500}
 
 /* CHECKIN */
 .slider-top{display:flex;justify-content:space-between;align-items:baseline;margin:14px 0 8px}
@@ -67,6 +78,13 @@ input[type=range]::-webkit-slider-thumb:active{transform:scale(1.18);cursor:grab
 .r-chip{padding:3px 10px;border-radius:50px;font-size:.7rem;font-weight:700;background:var(--pri-l);color:var(--muted);border:1.5px solid transparent;transition:all .22s}
 .r-chip.on{color:var(--pri-d);border-color:var(--primary)}
 .checkin-done-box{background:var(--green-l);border-radius:var(--rs);padding:13px;text-align:center;font-size:.85rem;font-weight:700;color:var(--green)}
+.streak-hint{margin-top:10px;font-size:.75rem;font-weight:700;color:var(--muted)}
+
+/* RANDOM EVENT */
+.event-box{border-radius:var(--rs);padding:11px 14px;margin-top:12px;display:flex;align-items:center;gap:10px;font-size:.82rem;font-weight:700}
+.event-good{background:var(--yellow-l);color:#B8900A}
+.event-bad{background:var(--red-l);color:var(--red)}
+.event-icon{font-size:1.4rem;flex-shrink:0}
 
 /* BUTTONS */
 .btn{display:flex;align-items:center;justify-content:center;gap:5px;width:100%;padding:12px;border-radius:var(--rs);border:none;font-family:'Noto Sans SC',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;transition:all .16s}
@@ -76,8 +94,8 @@ input[type=range]::-webkit-slider-thumb:active{transform:scale(1.18);cursor:grab
 .btn-p:disabled{background:var(--pri-l);color:var(--muted);box-shadow:none;cursor:not-allowed;transform:none;filter:none}
 .btn-g{background:var(--green);color:white}
 .btn-g:hover{filter:brightness(.92)}
-.btn-r{background:var(--red);color:white}
-.btn-r:hover{filter:brightness(.92)}
+.btn-b{background:var(--blue);color:white}
+.btn-b:hover{filter:brightness(.92)}
 .btn-gh{background:var(--bg);color:var(--muted);border:1.5px solid var(--border)}
 .btn-gh:hover{border-color:var(--primary);color:var(--pri-d)}
 .btn-sm{padding:7px 13px;font-size:.75rem;width:auto;border-radius:8px}
@@ -102,6 +120,21 @@ input[type=range]::-webkit-slider-thumb:active{transform:scale(1.18);cursor:grab
 .no-cards{width:100%;text-align:center;padding:14px 0;font-size:.8rem;color:var(--muted);font-weight:500}
 .pool-foot{display:flex;justify-content:space-between;font-size:.76rem;color:var(--muted);font-weight:500}
 .pool-foot strong{color:var(--text)}
+
+/* DEPOSIT */
+.deposit-options{display:flex;gap:8px;margin-bottom:14px}
+.dep-opt{flex:1;padding:10px 6px;border-radius:var(--rs);border:1.5px solid var(--border);background:none;cursor:pointer;text-align:center;transition:all .18s;font-family:'Noto Sans SC',sans-serif}
+.dep-opt:hover{border-color:var(--primary)}
+.dep-opt.active{background:var(--pri-l);border-color:var(--primary)}
+.dep-opt-days{font-family:'Nunito',sans-serif;font-weight:900;font-size:1.1rem;color:var(--pri-d)}
+.dep-opt-reward{font-size:.68rem;font-weight:700;color:var(--muted);margin-top:2px}
+.active .dep-opt-reward{color:var(--pri-d)}
+.dep-active-card{background:var(--yellow-l);border-radius:var(--rs);padding:13px;margin-bottom:10px}
+.dep-active-title{font-size:.82rem;font-weight:700;color:#B8900A;margin-bottom:6px}
+.dep-progress-track{height:6px;background:rgba(184,144,10,.2);border-radius:3px;overflow:hidden;margin:6px 0}
+.dep-progress-fill{height:100%;background:#F5C842;border-radius:3px;transition:width .5s}
+.dep-meta{display:flex;justify-content:space-between;font-size:.72rem;color:#B8900A;font-weight:700}
+.dep-matured{background:var(--green-l);border-radius:var(--rs);padding:13px;margin-bottom:10px;text-align:center;font-size:.85rem;font-weight:700;color:var(--green)}
 
 /* DAILY EXTRA */
 .extra-done-box{background:var(--yellow-l);border-radius:var(--rs);padding:11px 14px;display:flex;align-items:center;justify-content:space-between;font-size:.82rem;font-weight:700;color:#B8900A}
@@ -133,13 +166,12 @@ input[type=number]::-webkit-inner-spin-button{display:none}
 .no-wish{text-align:center;padding:14px 0;font-size:.8rem;color:var(--muted);font-weight:500}
 
 /* STATS */
-.stats-tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.stats-tabs{display:flex;gap:6px;margin-bottom:14px}
 .stats-tab{padding:6px 14px;border-radius:50px;border:1.5px solid var(--border);background:none;font-size:.75rem;font-weight:700;color:var(--muted);cursor:pointer;font-family:'Noto Sans SC',sans-serif;transition:all .16s}
 .stats-tab.active{background:var(--pri-l);border-color:var(--primary);color:var(--pri-d)}
-
 .chart-wrap{position:relative;height:200px;margin-bottom:8px}
 .stats-legend{display:flex;flex-wrap:wrap;gap:10px;font-size:.72rem;font-weight:700;color:var(--muted)}
-.legend-dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:4px;flex-shrink:0}
+.legend-dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:4px}
 
 /* HISTORY */
 .hist-toggle{width:100%;background:none;border:none;font-family:'Nunito','Noto Sans SC',sans-serif;font-weight:900;font-size:1rem;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:0}
@@ -156,7 +188,9 @@ input[type=number]::-webkit-inner-spin-button{display:none}
 .h-chip{font-size:.66rem;font-weight:700;padding:2px 7px;border-radius:50px}
 .hc-earn{background:var(--yellow-l);color:#B8900A}
 .hc-extra{background:var(--blue-l);color:#4A8FC0}
-.hc-wish{background:#FFE8F0;color:#C0507A}
+.hc-event-good{background:var(--green-l);color:#3A9A60}
+.hc-event-bad{background:var(--red-l);color:var(--red)}
+.hc-deposit{background:var(--yellow-l);color:#B8900A}
 .h-spends{font-size:.74rem;color:var(--muted);font-weight:500}
 .h-srow{display:flex;justify-content:space-between;padding:1px 0}
 .h-srow span:last-child{color:var(--red);font-weight:700}
@@ -176,13 +210,16 @@ input[type=number]::-webkit-inner-spin-button{display:none}
 /* MODAL */
 .overlay{display:none;position:fixed;inset:0;background:rgba(61,43,31,.45);backdrop-filter:blur(3px);z-index:100;align-items:center;justify-content:center}
 .overlay.show{display:flex}
-.modal{background:var(--card);border-radius:var(--r);padding:26px 22px;max-width:310px;width:calc(100% - 32px);box-shadow:0 14px 38px rgba(61,43,31,.2);text-align:center}
+.modal{background:var(--card);border-radius:var(--r);padding:26px 22px;max-width:320px;width:calc(100% - 32px);box-shadow:0 14px 38px rgba(61,43,31,.2);text-align:center}
 .modal-emoji{font-size:2.6rem;margin-bottom:8px}
 .modal h3{font-family:'Nunito','Noto Sans SC',sans-serif;font-weight:900;font-size:1.15rem;margin-bottom:5px}
 .modal p{font-size:.8rem;color:var(--muted);font-weight:500;margin-bottom:16px}
 .modal-btns{display:flex;gap:8px}
 #importText{width:100%;height:88px;border:1.5px solid var(--border);border-radius:var(--rs);padding:9px;font-family:monospace;font-size:.76rem;resize:vertical;outline:none;background:var(--bg);margin-bottom:14px}
 #importText:focus{border-color:var(--primary)}
+
+/* EVENT MODAL */
+.event-modal-icon{font-size:3.5rem;margin-bottom:8px}
 
 /* CONFETTI */
 .cf{position:fixed;border-radius:2px;pointer-events:none;z-index:9999;animation:cfFall 1.6s ease-out forwards}
@@ -204,42 +241,44 @@ input[type=number]::-webkit-inner-spin-button{display:none}
 </div>
 <div class="sync-bar"><div class="sync-dot" id="syncDot"></div><span id="syncText">正在连接云同步…</span></div>
 
-<!-- OSS 配置引导 -->
+<!-- OSS 配置 -->
 <div class="card setup-card" id="setupCard" style="display:none">
   <div class="sec" style="color:var(--pri-d)">☁️ 配置云同步</div>
-  <p style="font-size:.8rem;color:var(--muted);margin-bottom:14px;font-weight:500">填入阿里云 OSS 信息即可多端同步，不填也可正常使用（仅本地）。</p>
-  <div class="setup-field">
-    <label class="setup-label">地域 Region ID</label>
-    <input type="text" id="cfgRegion" placeholder="例：oss-cn-hangzhou">
-  </div>
-  <div class="setup-field">
-    <label class="setup-label">Bucket 名称</label>
-    <input type="text" id="cfgBucket" placeholder="例：my-reward-wallet">
-  </div>
-  <div class="setup-field">
-    <label class="setup-label">AccessKey ID</label>
-    <input type="text" id="cfgKeyId" placeholder="LTAI5t…">
-  </div>
-  <div class="setup-field">
-    <label class="setup-label">AccessKey Secret</label>
-    <input type="text" id="cfgKeySecret" placeholder="子账号的 Secret">
-  </div>
+  <p style="font-size:.8rem;color:var(--muted);margin-bottom:14px;font-weight:500">填入阿里云 OSS 信息即可多端同步，不填也可正常使用。</p>
+  <div class="setup-field"><label class="setup-label">地域 Region ID</label><input type="text" id="cfgRegion" placeholder="例：oss-cn-hangzhou"></div>
+  <div class="setup-field"><label class="setup-label">Bucket 名称</label><input type="text" id="cfgBucket" placeholder="例：my-reward-wallet"></div>
+  <div class="setup-field"><label class="setup-label">AccessKey ID</label><input type="text" id="cfgKeyId" placeholder="LTAI5t…"></div>
+  <div class="setup-field"><label class="setup-label">AccessKey Secret</label><input type="text" id="cfgKeySecret" placeholder="子账号的 Secret"></div>
   <button class="btn btn-p" onclick="saveConfig()">💾 保存配置并连接</button>
   <button class="btn btn-gh" style="margin-top:8px" onclick="skipConfig()">暂时跳过，仅本地使用</button>
 </div>
 
 <!-- 余额 -->
 <div class="card">
-  <div class="bal-label">💰 当前余额</div>
-  <div class="bal-amount"><span>¥</span><span id="balNum">0.00</span></div>
-  <div class="bal-sub" id="balSub">继续完成任务来赚取奖励吧～</div>
+  <div style="display:flex;gap:12px">
+    <div style="flex:1">
+      <div class="bal-label">💰 奖励余额</div>
+      <div class="bal-amount"><span>¥</span><span id="balNum">0.00</span></div>
+      <div class="bal-sub" id="balSub">继续完成任务赚取奖励吧～</div>
+    </div>
+    <div style="flex:1;padding-left:12px;border-left:1.5px dashed var(--border)">
+      <div class="bal-label" style="color:#4A8FC0">🌟 愿望基金</div>
+      <div class="bal-amount" style="font-size:2.2rem;color:#4A8FC0"><span style="font-size:1rem">¥</span><span id="wishFundNum">0.00</span></div>
+      <div class="bal-sub" id="wishFundSub">每月存¥50，达标+¥10</div>
+    </div>
+  </div>
 </div>
 
 <!-- 每日打卡 -->
 <div class="card">
   <div class="sec">📋 今日任务打卡 <span class="pill pill-o" id="todayBadge">未打卡</span></div>
+
+  <!-- 天气 -->
+  <div id="weatherBanner"></div>
+
   <div id="checkinDoneBox" style="display:none">
-    <div class="checkin-done-box">✅ 今日已打卡！完成度 <span id="donePct"></span>%，领取了 <span id="doneN"></span> 张抽奖券</div>
+    <div class="checkin-done-box">✅ 今日已打卡！完成度 <span id="donePct"></span>%，领取了 <span id="doneN"></span> 张奖券</div>
+    <div id="todayEventBox"></div>
   </div>
   <div id="checkinForm">
     <div class="slider-top">
@@ -252,7 +291,7 @@ input[type=number]::-webkit-inner-spin-button{display:none}
       <div class="r-chip" id="chip80">🎫🎫 80-99% → 2张</div>
       <div class="r-chip" id="chip100">🎫×4 100% → 4张</div>
     </div>
-    <div id="streakHint" style="margin-top:10px;font-size:.75rem;font-weight:700;color:var(--muted)"></div>
+    <div class="streak-hint" id="streakHint"></div>
     <button class="btn btn-p" style="margin-top:14px" onclick="doCheckin()">✅ 提交今日完成度</button>
   </div>
 </div>
@@ -260,16 +299,61 @@ input[type=number]::-webkit-inner-spin-button{display:none}
 <!-- 待刮奖券 -->
 <div class="card">
   <div class="sec">🎴 待刮奖券 <span class="pill pill-o" id="poolPill">0 张</span></div>
-  <div class="scratch-row" id="scratchRow">
-    <div class="no-cards">暂无待刮奖券，完成任务来领取吧 🌟</div>
-  </div>
+  <div class="scratch-row" id="scratchRow"><div class="no-cards">暂无待刮奖券，完成任务来领取吧 🌟</div></div>
   <div class="pool-foot">
     <span>剩余奖券: <strong id="poolRemain">0</strong> 张</span>
     <span>总金额: <strong id="poolTotal">¥0.00</strong></span>
   </div>
 </div>
 
-<!-- 今日任务额外奖励 -->
+<!-- 定期存款 -->
+<div class="card">
+  <div class="sec">🏦 定期存款 <span class="pill pill-y" id="depositPill">未存入</span></div>
+  <div id="depositMaturedBox" style="display:none">
+    <div class="dep-matured" id="depositMaturedMsg"></div>
+    <button class="btn btn-g" style="margin-bottom:12px" onclick="claimDeposit()">🎉 领取到期奖励</button>
+  </div>
+  <div id="depositActiveBox" style="display:none">
+    <div class="dep-active-card">
+      <div class="dep-active-title">📦 存款进行中</div>
+      <div class="dep-meta">
+        <span id="depActiveAmt"></span>
+        <span id="depActiveDays"></span>
+      </div>
+      <div class="dep-progress-track"><div class="dep-progress-fill" id="depProgressFill"></div></div>
+      <div class="dep-meta">
+        <span id="depActiveStart"></span>
+        <span id="depActiveEnd"></span>
+      </div>
+    </div>
+  </div>
+  <div id="depositFormBox">
+    <p style="font-size:.78rem;color:var(--muted);font-weight:500;margin-bottom:12px">锁定一笔余额，到期后自动解锁并获得奖券奖励，同时只能有一笔。</p>
+    <div class="deposit-options" id="depOptions">
+      <div class="dep-opt active" onclick="selDep(this,7,1)">
+        <div class="dep-opt-days">7天</div>
+        <div class="dep-opt-reward">到期 +1张奖券</div>
+      </div>
+      <div class="dep-opt" onclick="selDep(this,14,2)">
+        <div class="dep-opt-days">14天</div>
+        <div class="dep-opt-reward">到期 +2张奖券</div>
+      </div>
+      <div class="dep-opt" onclick="selDep(this,30,4)">
+        <div class="dep-opt-days">30天</div>
+        <div class="dep-opt-reward">到期 +4张奖券</div>
+      </div>
+    </div>
+    <div class="input-row">
+      <div class="field">
+        <span class="f-pre">¥</span>
+        <input type="number" id="depAmt" placeholder="存入金额" min="1" step="1">
+      </div>
+      <button class="btn btn-b btn-sm" onclick="createDeposit()" style="flex-shrink:0">🏦 存入</button>
+    </div>
+  </div>
+</div>
+
+<!-- 今日额外奖励 -->
 <div class="card">
   <div class="sec">🌟 今日任务额外奖励 <span class="pill pill-b" id="extraBadge">未添加</span></div>
   <div id="extraDoneBox" style="display:none">
@@ -279,7 +363,7 @@ input[type=number]::-webkit-inner-spin-button{display:none}
     </div>
   </div>
   <div id="extraForm">
-    <p style="font-size:.78rem;color:var(--muted);font-weight:500;margin-bottom:12px">完成了奖券系统外的额外任务？在这里记录奖励，每日限一次。</p>
+    <p style="font-size:.78rem;color:var(--muted);font-weight:500;margin-bottom:12px">完成了奖券系统外的额外任务？每日限一次。</p>
     <div class="input-row">
       <div class="field">
         <span class="f-pre">¥</span>
@@ -295,18 +379,13 @@ input[type=number]::-webkit-inner-spin-button{display:none}
   <div class="sec">🛍️ 消费扣除</div>
   <div class="cat-row">
     <button class="cat-chip active" data-cat="🎮 游戏充值" onclick="selCat(this)">🎮 游戏充值</button>
-    <button class="cat-chip" data-cat="🧸 周边手办"  onclick="selCat(this)">🧸 周边手办</button>
-    <button class="cat-chip" data-cat="📓 手账文具"  onclick="selCat(this)">📓 手账文具</button>
-    <button class="cat-chip" data-cat="🛒 其他"      onclick="selCat(this)">🛒 其他</button>
+    <button class="cat-chip" data-cat="🧸 周边手办" onclick="selCat(this)">🧸 周边手办</button>
+    <button class="cat-chip" data-cat="📓 手账文具" onclick="selCat(this)">📓 手账文具</button>
+    <button class="cat-chip" data-cat="🛒 其他" onclick="selCat(this)">🛒 其他</button>
   </div>
   <div class="input-row">
-    <div class="field">
-      <span class="f-pre">¥</span>
-      <input type="number" id="spendAmt" placeholder="金额" min="0.01" step="0.01">
-    </div>
-    <div class="field" style="flex:1.4">
-      <input type="text" id="spendNote" placeholder="备注（可选）">
-    </div>
+    <div class="field"><span class="f-pre">¥</span><input type="number" id="spendAmt" placeholder="金额" min="0.01" step="0.01"></div>
+    <div class="field" style="flex:1.4"><input type="text" id="spendNote" placeholder="备注（可选）"></div>
   </div>
   <button class="btn btn-p" onclick="doSpend()">💸 确认消费扣除</button>
 </div>
@@ -315,18 +394,11 @@ input[type=number]::-webkit-inner-spin-button{display:none}
 <div class="card">
   <div class="sec">💝 愿望清单 <span class="pill pill-o" id="wishPill">0 件</span></div>
   <div class="wish-add-row">
-    <div class="field" style="flex:1.5">
-      <input type="text" id="wishName" placeholder="想买什么～">
-    </div>
-    <div class="field">
-      <span class="f-pre">¥</span>
-      <input type="number" id="wishPrice" placeholder="价格" min="0.01" step="0.01">
-    </div>
-    <button class="btn btn-p btn-sm" onclick="addWish()">＋ 添加</button>
+    <div class="field" style="flex:1.5"><input type="text" id="wishName" placeholder="想买什么～"></div>
+    <div class="field"><span class="f-pre">¥</span><input type="number" id="wishPrice" placeholder="价格" min="0.01" step="0.01"></div>
+    <button class="btn btn-p btn-sm" onclick="addWish()">＋</button>
   </div>
-  <div class="wish-list" id="wishList">
-    <div class="no-wish">愿望清单空空的，加点想买的东西吧 💭</div>
-  </div>
+  <div class="wish-list" id="wishList"><div class="no-wish">愿望清单空空的 💭</div></div>
 </div>
 
 <!-- 统计图 -->
@@ -336,26 +408,34 @@ input[type=number]::-webkit-inner-spin-button{display:none}
     <button class="stats-tab active" onclick="setStatsRange('week',this)">最近7天</button>
     <button class="stats-tab" onclick="setStatsRange('month',this)">本月</button>
   </div>
-
   <div class="chart-wrap"><canvas id="statsChart"></canvas></div>
   <div class="stats-legend">
     <span><span class="legend-dot" style="background:#F5C842"></span>奖券收入</span>
-    <span><span class="legend-dot" style="background:#7EB8E8"></span>任务额外奖励</span>
+    <span><span class="legend-dot" style="background:#7EB8E8"></span>额外奖励</span>
     <span><span class="legend-dot" style="background:#E07070"></span>消费支出</span>
-    <span><span class="legend-dot" style="background:#6DBF8A"></span>余额变化</span>
+    <span><span class="legend-dot" style="background:#6DBF8A"></span>余额</span>
   </div>
 </div>
 
 <!-- 历史记录 -->
 <div class="card">
   <button class="hist-toggle" onclick="toggleHist()">
-    <span>📖 历史记录</span>
-    <span class="hist-arrow" id="histArrow">▼</span>
+    <span>📖 历史记录</span><span class="hist-arrow" id="histArrow">▼</span>
   </button>
   <div class="hist-body" id="histBody"></div>
 </div>
 
 <div id="toast"></div>
+
+<!-- 随机事件 Modal -->
+<div class="overlay" id="eventModal">
+  <div class="modal">
+    <div class="event-modal-icon" id="evIcon"></div>
+    <h3 id="evTitle"></h3>
+    <p id="evDesc"></p>
+    <button class="btn btn-p" onclick="closeEventModal()">好的！</button>
+  </div>
+</div>
 
 <!-- 导入 Modal -->
 <div class="overlay" id="importModal">
@@ -371,12 +451,20 @@ input[type=number]::-webkit-inner-spin-button{display:none}
   </div>
 </div>
 
-<!-- 购买确认 Modal -->
+<!-- 购买 Modal -->
 <div class="overlay" id="buyModal">
   <div class="modal">
     <div class="modal-emoji">🛍️</div>
     <h3 id="buyModalTitle">确认购买</h3>
     <p id="buyModalMsg"></p>
+    <div style="display:flex;gap:8px;margin-bottom:16px">
+      <button class="btn btn-gh" id="poolBtnReward" onclick="selectPool('reward')" style="flex:1;padding:10px 8px;font-size:.78rem;flex-direction:column;gap:2px">
+        <span>💰 奖励余额</span><span id="poolBalReward" style="font-family:'Nunito',sans-serif;font-weight:900;font-size:1rem;color:var(--pri-d)"></span>
+      </button>
+      <button class="btn btn-gh" id="poolBtnWish" onclick="selectPool('wish')" style="flex:1;padding:10px 8px;font-size:.78rem;flex-direction:column;gap:2px">
+        <span>🌟 愿望基金</span><span id="poolBalWish" style="font-family:'Nunito',sans-serif;font-weight:900;font-size:1rem;color:#4A8FC0"></span>
+      </button>
+    </div>
     <div class="modal-btns">
       <button class="btn btn-p" id="buyConfirmBtn">确认购买</button>
       <button class="btn btn-gh" onclick="closeBuyModal()">取消</button>
@@ -386,14 +474,10 @@ input[type=number]::-webkit-inner-spin-button{display:none}
 
 <script>
 // ═══════════════════════════════
-//  OSS CONFIG
+//  OSS
 // ═══════════════════════════════
-const CFG_KEY  = 'rewardWallet_ossCfg';
-const DATA_KEY = 'rewardWallet_v4';
-const OSS_FILE = 'wallet-data.json';
-let ossClient = null;
-let cfg = loadCfg();
-
+const CFG_KEY='rewardWallet_ossCfg',DATA_KEY='rewardWallet_v4',OSS_FILE='wallet-data.json';
+let ossClient=null,cfg=loadCfg();
 function loadCfg(){try{return JSON.parse(localStorage.getItem(CFG_KEY))||null}catch(e){return null}}
 function saveCfg(c){localStorage.setItem(CFG_KEY,JSON.stringify(c));cfg=c}
 function initOSS(c){
@@ -405,10 +489,9 @@ async function loadFromOSS(){
   if(!ossClient)return null;
   try{
     setSyncStatus('spin','正在从云端读取…');
-    const result=await ossClient.get(OSS_FILE);
-    const text=result.content instanceof Blob?await result.content.text():(typeof result.content==='string'?result.content:new TextDecoder().decode(result.content));
-    setSyncStatus('ok','云端同步正常 ☁️');
-    return JSON.parse(text);
+    const res=await ossClient.get(OSS_FILE);
+    const text=res.content instanceof Blob?await res.content.text():(typeof res.content==='string'?res.content:new TextDecoder().decode(res.content));
+    setSyncStatus('ok','云端同步正常 ☁️');return JSON.parse(text);
   }catch(e){
     if(e.code==='NoSuchKey'||(e.status&&e.status===404)){setSyncStatus('ok','云端同步正常 ☁️（首次使用）');return null}
     setSyncStatus('err','云端读取失败，使用本地数据');return null;
@@ -416,34 +499,34 @@ async function loadFromOSS(){
 }
 async function saveToOSS(data){
   if(!ossClient)return;
-  try{
-    setSyncStatus('spin','正在同步到云端…');
-    await ossClient.put(OSS_FILE,new Blob([JSON.stringify(data)],{type:'application/json'}));
-    setSyncStatus('ok','已同步到云端 ✓');
-  }catch(e){setSyncStatus('err','云端同步失败，数据已保存到本地')}
+  try{setSyncStatus('spin','正在同步…');await ossClient.put(OSS_FILE,new Blob([JSON.stringify(data)],{type:'application/json'}));setSyncStatus('ok','已同步 ✓')}
+  catch(e){setSyncStatus('err','云端同步失败，已保存到本地')}
 }
-function setSyncStatus(state,text){
-  document.getElementById('syncDot').className='sync-dot '+state;
-  document.getElementById('syncText').textContent=text;
-}
+function setSyncStatus(s,t){document.getElementById('syncDot').className='sync-dot '+s;document.getElementById('syncText').textContent=t}
 function saveConfig(){
-  const c={region:document.getElementById('cfgRegion').value.trim(),bucket:document.getElementById('cfgBucket').value.trim(),keyId:document.getElementById('cfgKeyId').value.trim(),keySecret:document.getElementById('cfgKeySecret').value.trim()};
-  if(!c.region||!c.bucket||!c.keyId||!c.keySecret){toast('请填写全部四项配置信息');return}
+  const c={region:v('cfgRegion'),bucket:v('cfgBucket'),keyId:v('cfgKeyId'),keySecret:v('cfgKeySecret')};
+  if(!c.region||!c.bucket||!c.keyId||!c.keySecret){toast('请填写全部四项');return}
   saveCfg(c);
-  if(initOSS(c)){document.getElementById('setupCard').style.display='none';toast('✅ OSS 配置成功，正在同步…');syncOnStart()}
-  else toast('❌ OSS 初始化失败，请检查配置');
+  if(initOSS(c)){document.getElementById('setupCard').style.display='none';toast('✅ 配置成功');syncOnStart()}
+  else toast('❌ 初始化失败，请检查配置');
 }
-function skipConfig(){saveCfg({skipped:true});document.getElementById('setupCard').style.display='none';setSyncStatus('','仅本地存储（未配置云同步）')}
+function skipConfig(){saveCfg({skipped:true});document.getElementById('setupCard').style.display='none';setSyncStatus('','仅本地存储')}
+function v(id){return document.getElementById(id).value.trim()}
 
 // ═══════════════════════════════
 //  STATE
 // ═══════════════════════════════
-let S = loadLocalState();
-function defState(){return{balance:0,pendingCards:[],history:[],wishlist:[],lastModified:0}}
+let S=loadLocalState();
+function defState(){return{balance:0,wishFund:0,pendingCards:[],history:[],wishlist:[],deposit:null,lastModified:0,lastMonthlyDeposit:null}}
 function loadLocalState(){
   try{
     const r=JSON.parse(localStorage.getItem(DATA_KEY));
-    if(r&&Array.isArray(r.history)){r.wishlist=r.wishlist??[];r.lastModified=r.lastModified??0;return r}
+    if(r&&Array.isArray(r.history)){
+      r.wishlist=r.wishlist??[];r.lastModified=r.lastModified??0;
+      r.wishFund=r.wishFund??0;r.lastMonthlyDeposit=r.lastMonthlyDeposit??null;
+      r.deposit=r.deposit??null;
+      return r;
+    }
   }catch(e){}
   return defState();
 }
@@ -455,18 +538,57 @@ async function save(){S.lastModified=Date.now();saveLocal();await saveToOSS(S)}
 // ═══════════════════════════════
 function today(){const d=new Date();return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate())}
 function p2(n){return String(n).padStart(2,'0')}
-function rnd(a,b){return Math.round((Math.random()*(b-a)+a)*100)/100}
 function r2(n){return Math.round(n*100)/100}
 function todayRec(){return S.history.find(h=>h.date===today())}
 function ensureTodayRec(){
   let rec=todayRec();
-  if(!rec){rec={date:today(),completion:null,cardsGiven:0,cardAmounts:[],spending:[],extra:null};S.history.unshift(rec)}
+  if(!rec){rec={date:today(),completion:null,cardsGiven:0,cardAmounts:[],spending:[],extra:null,event:null,wishFundChanges:[]};S.history.unshift(rec)}
   if(!rec.spending)rec.spending=[];
+  if(!rec.wishFundChanges)rec.wishFundChanges=[];
   return rec;
 }
 
 // ═══════════════════════════════
-//  SLIDER
+//  WEATHER
+// ═══════════════════════════════
+function getWeather(){
+  const recent=S.history.filter(h=>h.completion!==null).slice(0,7);
+  if(!recent.length)return'cloudy';
+  const avg=recent.reduce((a,h)=>a+h.completion,0)/recent.length;
+  if(avg>=80)return'sunny';
+  if(avg>=60)return'cloudy';
+  return'rainy';
+}
+function weatherRange(){
+  const w=getWeather();
+  if(w==='sunny')return[3,10];
+  if(w==='rainy')return[1,6];
+  return[1,10];
+}
+function rnd(a,b){return Math.round((Math.random()*(b-a)+a)*100)/100}
+
+// ═══════════════════════════════
+//  RANDOM EVENTS
+// ═══════════════════════════════
+const EVENTS=[
+  // good (weight 7)
+  {type:'good',icon:'🍀',title:'捡到零钱！',desc:'奖励余额 +¥0.50',weight:2,apply:(cards)=>{S.balance=r2(S.balance+0.5);return{kind:'balance',val:0.5}}},
+  {type:'good',icon:'✨',title:'幸运加成！',desc:'本次所有奖券金额各 +¥1',weight:2,apply:(cards)=>{cards.forEach(c=>{c.amount=r2(Math.min(c.amount+1,10))});return{kind:'cards',val:1}}},
+  {type:'good',icon:'🎁',title:'神秘礼包！',desc:'额外获得 1 张奖券',weight:2,apply:(cards)=>{const c={id:Date.now()+999,amount:rnd(...weatherRange())};cards.push(c);S.pendingCards.push(c);return{kind:'extraCard',val:c.amount}}},
+  {type:'good',icon:'💫',title:'愿望之星！',desc:'愿望基金 +¥5',weight:1,apply:(cards)=>{S.wishFund=r2(S.wishFund+5);return{kind:'wishFund',val:5}}},
+  // bad (weight 3)
+  {type:'bad',icon:'💸',title:'哎呀掉零钱了……',desc:'奖励余额 -¥0.50（如果余额充足）',weight:2,apply:(cards)=>{if(S.balance>=0.5)S.balance=r2(S.balance-0.5);return{kind:'balance',val:-0.5}}},
+  {type:'bad',icon:'🌩️',title:'倒霉蛋！',desc:'本次所有奖券金额各 -¥1（最低¥1）',weight:1,apply:(cards)=>{cards.forEach(c=>{c.amount=r2(Math.max(c.amount-1,1))});return{kind:'cards',val:-1}}},
+];
+function pickEvent(){
+  const total=EVENTS.reduce((a,e)=>a+e.weight,0);
+  let rand=Math.random()*total;
+  for(const e of EVENTS){rand-=e.weight;if(rand<=0)return e}
+  return EVENTS[0];
+}
+
+// ═══════════════════════════════
+//  CHECK-IN
 // ═══════════════════════════════
 let sliderV=0;
 document.getElementById('slider').addEventListener('input',function(){
@@ -483,53 +605,69 @@ document.getElementById('slider').addEventListener('input',function(){
   document.getElementById('chip100').className='r-chip'+(sliderV===100?' on':'');
 });
 
-// ═══════════════════════════════
-//  CHECK-IN
-// ═══════════════════════════════
 function doCheckin(){
   const rec=todayRec();
   if(rec&&rec.completion!==null){toast('今天已经打卡啦 ✅');return}
-  if(!sliderV&&sliderV!==0){toast('请先拖动滑块输入完成度');return}
   const pct=sliderV;
   let n=pct===100?4:pct>=80?2:pct>=60?1:0;
 
-  // 连续3天≥80%补偿：检查昨天和前天
+  // 连续3天≥80%补偿
   let streakBonus=false;
   if(pct>=80){
-    const sorted=[...S.history].filter(h=>h.completion!==null).sort((a,b)=>b.date.localeCompare(a.date));
-    // 找今天之前最近2条
-    const prev=sorted.slice(0,2);
-    if(prev.length===2&&prev[0].completion>=80&&prev[1].completion>=80){
-      streakBonus=true;
-      n+=1;
-    }
+    const prev=[...S.history].filter(h=>h.completion!==null).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,2);
+    if(prev.length===2&&prev[0].completion>=80&&prev[1].completion>=80){streakBonus=true;n+=1}
   }
+
+  // 生成天气范围奖券
+  const [rMin,rMax]=weatherRange();
+  const newCards=Array.from({length:n},(_,i)=>({id:Date.now()+i,amount:rnd(rMin,rMax)}));
+
+  // 随机事件（打卡才触发）
+  let eventResult=null,chosenEvent=null;
+  if(pct>0){
+    chosenEvent=pickEvent();
+    eventResult=chosenEvent.apply(newCards);
+  }
+
+  S.pendingCards.push(...newCards);
 
   const r=ensureTodayRec();
-  r.completion=pct;r.cardsGiven=n;r.streakBonus=streakBonus;
+  r.completion=pct;r.cardsGiven=newCards.length;r.cardAmounts=newCards.map(c=>c.amount);
+  r.streakBonus=streakBonus;
+  r.event=chosenEvent?{type:chosenEvent.type,icon:chosenEvent.icon,title:chosenEvent.title,desc:chosenEvent.desc}:null;
 
-  if(n>0){
-    const cards=Array.from({length:n},(_,i)=>({id:Date.now()+i,amount:rnd(1,10)}));
-    S.pendingCards.push(...cards);
-    r.cardAmounts=cards.map(c=>c.amount);
-  } else {
-    r.cardAmounts=[];
-  }
+  // 月存50 + 达标存10（愿望基金）
+  const m=today().slice(0,7);
+  if(S.lastMonthlyDeposit!==m){S.wishFund=r2(S.wishFund+50);S.lastMonthlyDeposit=m;r.wishFundChanges.push({amount:50,note:'月度存入'})}
+  if(pct>=80){S.wishFund=r2(S.wishFund+10);r.wishFundChanges.push({amount:10,note:'达标奖励'})}
 
   save();render();renderChart();
-  if(n>0) confetti();
+  if(n>0)confetti();
 
-  if(pct<60) toast('📝 已打卡记录，继续加油！');
-  else if(streakBonus) toast(`🔥 连续3天≥80%！获得 ${n} 张奖券（含1张连续奖励）`);
-  else toast(`🎉 获得 ${n} 张奖券！快去刮一刮`);
+  // 显示随机事件弹窗
+  if(chosenEvent){
+    setTimeout(()=>{
+      document.getElementById('evIcon').textContent=chosenEvent.icon;
+      document.getElementById('evTitle').textContent=chosenEvent.title;
+      document.getElementById('evDesc').textContent=chosenEvent.desc;
+      document.getElementById('eventModal').classList.add('show');
+    },600);
+  }
+
+  const fundAdded=r.wishFundChanges.reduce((a,c)=>a+c.amount,0);
+  const fundTip=fundAdded>0?`，愿望基金+¥${fundAdded}`:'';
+  if(pct===0)toast('📝 已记录今日');
+  else if(pct<60)toast(`📝 已打卡${fundTip}`);
+  else if(streakBonus)toast(`🔥 连续达标！获得 ${newCards.length} 张奖券${fundTip}`);
+  else toast(`🎉 获得 ${newCards.length} 张奖券${fundTip}`);
 }
+function closeEventModal(){document.getElementById('eventModal').classList.remove('show')}
 
 // ═══════════════════════════════
 //  SCRATCH
 // ═══════════════════════════════
 function scratch(id){
-  const card=S.pendingCards.find(c=>c.id===id);
-  if(!card)return;
+  const card=S.pendingCards.find(c=>c.id===id);if(!card)return;
   const el=document.querySelector(`[data-id="${id}"]`);
   if(el){
     el.classList.add('peeling');
@@ -543,11 +681,53 @@ function scratch(id){
 }
 
 // ═══════════════════════════════
-//  DAILY EXTRA REWARD
+//  DEPOSIT
+// ═══════════════════════════════
+let selDepDays=7,selDepReward=1;
+function selDep(el,days,reward){
+  selDepDays=days;selDepReward=reward;
+  document.querySelectorAll('.dep-opt').forEach(e=>e.classList.remove('active'));
+  el.classList.add('active');
+}
+function createDeposit(){
+  if(S.deposit){toast('已有一笔存款进行中 🏦');return}
+  const amt=parseFloat(document.getElementById('depAmt').value);
+  if(!amt||isNaN(amt)||amt<1){toast('请输入有效金额（最低¥1）');return}
+  if(amt>S.balance){toast(`❌ 余额不足！当前 ¥${S.balance.toFixed(2)}`);return}
+  S.balance=r2(S.balance-amt);
+  const startDate=today();
+  const end=new Date();end.setDate(end.getDate()+selDepDays);
+  const endDate=end.getFullYear()+'-'+p2(end.getMonth()+1)+'-'+p2(end.getDate());
+  S.deposit={amount:amt,days:selDepDays,reward:selDepReward,startDate,endDate,matured:false};
+  document.getElementById('depAmt').value='';
+  save();render();
+  toast(`🏦 已存入 ¥${amt.toFixed(2)}，${selDepDays}天后到期获得${selDepReward}张奖券`);
+}
+function checkDepositMaturity(){
+  if(!S.deposit||S.deposit.matured)return;
+  if(today()>=S.deposit.endDate)S.deposit.matured=true;
+}
+function claimDeposit(){
+  if(!S.deposit||!S.deposit.matured)return;
+  const dep=S.deposit;
+  S.balance=r2(S.balance+dep.amount);
+  const bonus=Array.from({length:dep.reward},(_,i)=>({id:Date.now()+i,amount:rnd(...weatherRange())}));
+  S.pendingCards.push(...bonus);
+  const r=ensureTodayRec();
+  r.wishFundChanges=r.wishFundChanges||[];
+  // record in history
+  if(!r.depositClaim)r.depositClaim={amount:dep.amount,reward:dep.reward};
+  S.deposit=null;
+  save();render();renderChart();confetti();
+  toast(`🎉 存款到期！¥${dep.amount.toFixed(2)} 已归还 + ${dep.reward}张奖券`);
+}
+
+// ═══════════════════════════════
+//  EXTRA REWARD
 // ═══════════════════════════════
 function doExtra(){
   const rec=todayRec();
-  if(rec&&rec.extra!==null&&rec.extra!==undefined){toast('今天的额外奖励已记录啦 ✅');return}
+  if(rec&&rec.extra!=null){toast('今天的额外奖励已记录啦 ✅');return}
   const amt=parseFloat(document.getElementById('extraAmt').value);
   if(!amt||isNaN(amt)||amt<=0){toast('请输入有效金额');return}
   S.balance=r2(S.balance+amt);
@@ -563,15 +743,14 @@ function doExtra(){
 // ═══════════════════════════════
 let catVal='🎮 游戏充值';
 function selCat(btn){document.querySelectorAll('.cat-chip').forEach(b=>b.classList.remove('active'));btn.classList.add('active');catVal=btn.dataset.cat}
-function doSpend(amt,note,cat){
-  amt=amt??parseFloat(document.getElementById('spendAmt').value);
-  note=note??document.getElementById('spendNote').value.trim();
-  cat=cat??catVal;
+function doSpend(){
+  const amt=parseFloat(document.getElementById('spendAmt').value);
+  const note=document.getElementById('spendNote').value.trim();
   if(!amt||isNaN(amt)||amt<=0){toast('请输入有效金额');return}
-  if(amt>S.balance){toast(`❌ 余额不足！当前余额 ¥${S.balance.toFixed(2)}`);return}
+  if(amt>S.balance){toast(`❌ 余额不足！当前 ¥${S.balance.toFixed(2)}`);return}
   S.balance=r2(S.balance-amt);
-  ensureTodayRec().spending.push({amount:amt,category:cat,note});
-  if(arguments.length===0){document.getElementById('spendAmt').value='';document.getElementById('spendNote').value=''}
+  ensureTodayRec().spending.push({amount:amt,category:catVal,note});
+  document.getElementById('spendAmt').value='';document.getElementById('spendNote').value='';
   save();render();renderChart();
   toast(`✅ 已扣除 ¥${amt.toFixed(2)}`);
 }
@@ -585,22 +764,29 @@ function addWish(){
   if(!name){toast('请输入商品名称');return}
   if(!price||isNaN(price)||price<=0){toast('请输入有效价格');return}
   S.wishlist.push({id:Date.now(),name,price});
-  document.getElementById('wishName').value='';
-  document.getElementById('wishPrice').value='';
-  save();render();
-  toast('💝 已加入愿望清单！');
+  document.getElementById('wishName').value='';document.getElementById('wishPrice').value='';
+  save();render();toast('💝 已加入愿望清单！');
 }
-
+let selectedPool='reward';
+function selectPool(pool){
+  selectedPool=pool;
+  document.getElementById('poolBtnReward').style.cssText=pool==='reward'?'flex:1;padding:10px 8px;font-size:.78rem;flex-direction:column;gap:2px;border-color:var(--primary);background:var(--pri-l)':'flex:1;padding:10px 8px;font-size:.78rem;flex-direction:column;gap:2px';
+  document.getElementById('poolBtnWish').style.cssText=pool==='wish'?'flex:1;padding:10px 8px;font-size:.78rem;flex-direction:column;gap:2px;border-color:#7EB8E8;background:var(--blue-l)':'flex:1;padding:10px 8px;font-size:.78rem;flex-direction:column;gap:2px';
+}
 function buyWish(id){
-  const item=S.wishlist.find(w=>w.id===id);
-  if(!item)return;
-  document.getElementById('buyModalTitle').textContent='确认购买';
-  document.getElementById('buyModalMsg').textContent=`购买「${item.name}」需要 ¥${item.price.toFixed(2)}，将从余额中扣除。`;
+  const item=S.wishlist.find(w=>w.id===id);if(!item)return;
+  selectedPool='reward';
+  document.getElementById('buyModalMsg').textContent=`购买「${item.name}」需要 ¥${item.price.toFixed(2)}，请选择扣款来源：`;
+  document.getElementById('poolBalReward').textContent=`¥${S.balance.toFixed(2)}`;
+  document.getElementById('poolBalWish').textContent=`¥${S.wishFund.toFixed(2)}`;
+  selectPool('reward');
   document.getElementById('buyConfirmBtn').onclick=()=>{
     closeBuyModal();
-    if(item.price>S.balance){toast(`❌ 余额不足！当前余额 ¥${S.balance.toFixed(2)}`);return}
-    S.balance=r2(S.balance-item.price);
-    ensureTodayRec().spending.push({amount:item.price,category:'💝 愿望清单',note:item.name});
+    const bal=selectedPool==='reward'?S.balance:S.wishFund;
+    if(item.price>bal){toast(`❌ ${selectedPool==='reward'?'奖励余额':'愿望基金'}不足！当前 ¥${bal.toFixed(2)}`);return}
+    if(selectedPool==='reward')S.balance=r2(S.balance-item.price);
+    else S.wishFund=r2(S.wishFund-item.price);
+    ensureTodayRec().spending.push({amount:item.price,category:'💝 愿望清单',note:item.name+(selectedPool==='wish'?' (愿望基金)':'')});
     S.wishlist=S.wishlist.filter(w=>w.id!==id);
     save();render();renderChart();confetti();
     toast(`🎉 购买「${item.name}」成功！`);
@@ -631,22 +817,19 @@ function doImport(){
     const p=JSON.parse(document.getElementById('importText').value.trim());
     if(typeof p.balance==='number'&&Array.isArray(p.history)){
       S=p;S.wishlist=S.wishlist??[];S.lastModified=S.lastModified??0;
+      S.wishFund=S.wishFund??0;S.lastMonthlyDeposit=S.lastMonthlyDeposit??null;S.deposit=S.deposit??null;
       save();render();renderChart();closeImport();toast('✅ 数据导入成功！');
     }else toast('❌ 格式有误');
   }catch(e){toast('❌ JSON 解析失败')}
 }
 
 // ═══════════════════════════════
-//  TOAST
+//  TOAST & CONFETTI
 // ═══════════════════════════════
 let toastT;
-function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),2600)}
-
-// ═══════════════════════════════
-//  CONFETTI
-// ═══════════════════════════════
+function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),2800)}
 function confetti(){
-  const cols=['#C98A5E','#F0DDD0','#6DBF8A','#F5C842','#E8A87C','#FFD6E7'];
+  const cols=['#C98A5E','#F0DDD0','#6DBF8A','#F5C842','#E8A87C','#FFD6E7','#7EB8E8'];
   for(let i=0;i<20;i++)setTimeout(()=>{
     const el=document.createElement('div');el.className='cf';
     el.style.cssText=`left:${Math.random()*100}vw;top:-10px;background:${cols[Math.floor(Math.random()*cols.length)]};width:${7+Math.random()*6}px;height:${8+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'};animation-delay:${Math.random()*.3}s;animation-duration:${1.1+Math.random()*.7}s;`;
@@ -657,133 +840,71 @@ function confetti(){
 // ═══════════════════════════════
 //  CHART
 // ═══════════════════════════════
-let chartInstance=null;
-let statsRange='week';
-let chartType='line';
-
-function setStatsRange(range,btn){
-  statsRange=range;
-  document.querySelectorAll('.stats-tab').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  renderChart();
-}
-
-
-function getChartDates(){
-  const dates=[];
-  const now=new Date();
-  if(statsRange==='week'){
-    for(let i=6;i>=0;i--){
-      const d=new Date(now);d.setDate(d.getDate()-i);
-      dates.push(d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate()));
-    }
-  } else {
-    const year=now.getFullYear(),month=now.getMonth()+1;
-    const days=new Date(year,month,0).getDate();
-    for(let i=1;i<=days;i++)dates.push(year+'-'+p2(month)+'-'+p2(i));
-  }
-  return dates;
-}
-
+let chartInstance=null,statsRange='week';
+function setStatsRange(r,btn){statsRange=r;document.querySelectorAll('.stats-tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderChart()}
 function renderChart(){
-  const dates=getChartDates();
+  const now=new Date(),dates=[];
+  if(statsRange==='week'){for(let i=6;i>=0;i--){const d=new Date(now);d.setDate(d.getDate()-i);dates.push(d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate()))}}
+  else{const y=now.getFullYear(),m=now.getMonth()+1,days=new Date(y,m,0).getDate();for(let i=1;i<=days;i++)dates.push(y+'-'+p2(m)+'-'+p2(i))}
   const labels=dates.map(d=>{const p=d.split('-');return p[1]+'/'+p[2]});
-
-  const scratchData=[],extraData=[],spendData=[],balanceData=[];
-
-  // calculate running balance up to start
-  let runBal=S.balance;
-  // we'll rebuild from history
-  // collect per-date data
-  const dateMap={};
-  S.history.forEach(h=>{
-    dateMap[h.date]={
-      scratch:(h.cardAmounts||[]).reduce((a,v)=>a+v,0),
-      extra:h.extra?h.extra.amount:0,
-      spend:(h.spending||[]).reduce((a,s)=>a+s.amount,0)
-    };
-  });
-
-  // compute balance at end of each date
-  // start from current balance and go backwards
-  const sortedHistory=[...S.history].sort((a,b)=>b.date.localeCompare(a.date));
-  let bal=S.balance;
-  const balAtEndOf={};
-  // today's balance is current balance
-  balAtEndOf[today()]=S.balance;
-
-  // go backwards through all dates
-  const allDates=[...new Set([...sortedHistory.map(h=>h.date),...dates])].sort().reverse();
-  let rollingBal=S.balance;
-  allDates.forEach(d=>{
-    balAtEndOf[d]=rollingBal;
-    const dm=dateMap[d];
-    if(dm){rollingBal=r2(rollingBal-dm.scratch-dm.extra+dm.spend)}
-  });
-
-  dates.forEach(d=>{
-    const dm=dateMap[d]||{scratch:0,extra:0,spend:0};
-    scratchData.push(r2(dm.scratch));
-    extraData.push(r2(dm.extra));
-    spendData.push(r2(dm.spend));
-    balanceData.push(r2(balAtEndOf[d]??0));
-  });
-
+  const dm={};S.history.forEach(h=>{dm[h.date]={scratch:(h.cardAmounts||[]).reduce((a,v)=>a+v,0),extra:h.extra?h.extra.amount:0,spend:(h.spending||[]).reduce((a,s)=>a+s.amount,0)}});
+  const allDates=[...new Set([...S.history.map(h=>h.date),...dates])].sort().reverse();
+  const balAtEnd={};let rb=S.balance;
+  balAtEnd[today()]=S.balance;
+  allDates.forEach(d=>{balAtEnd[d]=rb;const x=dm[d];if(x)rb=r2(rb-x.scratch-x.extra+x.spend)});
+  const scratchD=[],extraD=[],spendD=[],balD=[];
+  dates.forEach(d=>{const x=dm[d]||{scratch:0,extra:0,spend:0};scratchD.push(r2(x.scratch));extraD.push(r2(x.extra));spendD.push(r2(x.spend));balD.push(r2(balAtEnd[d]??0))});
   const ctx=document.getElementById('statsChart').getContext('2d');
   if(chartInstance)chartInstance.destroy();
-
-  const commonDatasets=[
-    {label:'奖券收入',data:scratchData,backgroundColor:'rgba(245,200,66,.7)',borderColor:'#F5C842',borderWidth:2,tension:.4},
-    {label:'任务额外奖励',data:extraData,backgroundColor:'rgba(126,184,232,.7)',borderColor:'#7EB8E8',borderWidth:2,tension:.4},
-    {label:'消费支出',data:spendData,backgroundColor:'rgba(224,112,112,.7)',borderColor:'#E07070',borderWidth:2,tension:.4},
-    {label:'余额',data:balanceData,backgroundColor:'rgba(109,191,138,.15)',borderColor:'#6DBF8A',borderWidth:2,tension:.4,fill:chartType==='line'},
-  ];
-
-  chartInstance=new Chart(ctx,{
-    type:chartType,
-    data:{labels,datasets:commonDatasets},
-    options:{
-      responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`¥${ctx.parsed.y.toFixed(2)}`}}},
-      scales:{
-        x:{grid:{display:false},ticks:{font:{size:10},color:'#A09088'}},
-        y:{grid:{color:'rgba(0,0,0,.05)'},ticks:{font:{size:10},color:'#A09088',callback:v=>'¥'+v}}
-      }
-    }
-  });
+  chartInstance=new Chart(ctx,{type:'line',data:{labels,datasets:[
+    {label:'奖券收入',data:scratchD,backgroundColor:'rgba(245,200,66,.15)',borderColor:'#F5C842',borderWidth:2,tension:.4,fill:true},
+    {label:'额外奖励',data:extraD,backgroundColor:'rgba(126,184,232,.15)',borderColor:'#7EB8E8',borderWidth:2,tension:.4,fill:true},
+    {label:'消费支出',data:spendD,backgroundColor:'rgba(224,112,112,.15)',borderColor:'#E07070',borderWidth:2,tension:.4,fill:true},
+    {label:'余额',data:balD,backgroundColor:'rgba(109,191,138,.15)',borderColor:'#6DBF8A',borderWidth:2,tension:.4,fill:true},
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`¥${c.parsed.y.toFixed(2)}`}}},scales:{x:{grid:{display:false},ticks:{font:{size:10},color:'#A09088'}},y:{grid:{color:'rgba(0,0,0,.05)'},ticks:{font:{size:10},color:'#A09088',callback:v=>'¥'+v}}}}});
 }
 
 // ═══════════════════════════════
 //  RENDER
 // ═══════════════════════════════
 function render(){
+  checkDepositMaturity();
+
+  // balance
+  document.getElementById('balNum').textContent=S.balance.toFixed(2);
   const bal=S.balance;
-  document.getElementById('balNum').textContent=bal.toFixed(2);
-  document.getElementById('balSub').textContent=
-    bal<=0?'继续完成任务来赚取奖励吧～':
-    bal<20?'再攒一攒，就能买点好东西了 🌟':
-    bal<50?'攒了不少啦，可以去消费啦 🎉':
-    '哇！余额超丰厚，好好犒劳自己 🎁';
+  document.getElementById('balSub').textContent=bal<=0?'继续完成任务赚取奖励吧～':bal<20?'再攒一攒 🌟':bal<50?'攒了不少啦 🎉':'余额超丰厚，好好犒劳自己 🎁';
+  document.getElementById('wishFundNum').textContent=S.wishFund.toFixed(2);
+  const wf=S.wishFund;
+  document.getElementById('wishFundSub').textContent=wf<=0?'每月存¥50，达标+¥10':wf<100?`再攒 ¥${r2(100-wf)} 破百 💪`:wf<500?`距离¥500还差 ¥${r2(500-wf)}`:'可以买心仪的东西了 🎉';
+
+  // weather banner
+  const w=getWeather();
+  const wMap={sunny:{cls:'wb-sunny',icon:'☀️',title:'今日天气：晴天',desc:'近7天平均完成度≥80%，奖券金额 ¥3-10'},cloudy:{cls:'wb-cloudy',icon:'⛅',title:'今日天气：多云',desc:'正常发挥，奖券金额 ¥1-10'},rainy:{cls:'wb-rainy',icon:'🌧️',title:'今日天气：阴雨',desc:'近期完成度偏低，奖券金额 ¥1-6'}};
+  const wInfo=wMap[w];
+  document.getElementById('weatherBanner').innerHTML=`<div class="weather-banner ${wInfo.cls}"><div class="wb-icon">${wInfo.icon}</div><div class="wb-info"><div class="wb-title">${wInfo.title}</div><div class="wb-desc">${wInfo.desc}</div></div></div>`;
 
   // checkin
-  const rec=todayRec();
-  const done=rec&&rec.completion!==null;
+  const rec=todayRec();const done=rec&&rec.completion!==null;
   document.getElementById('todayBadge').textContent=done?'✅ 已打卡':'未打卡';
   document.getElementById('todayBadge').className='pill '+(done?'pill-g':'pill-o');
   document.getElementById('checkinDoneBox').style.display=done?'block':'none';
   document.getElementById('checkinForm').style.display=done?'none':'block';
-  if(done){document.getElementById('donePct').textContent=rec.completion;document.getElementById('doneN').textContent=rec.cardsGiven}
-
+  if(done){
+    document.getElementById('donePct').textContent=rec.completion;
+    document.getElementById('doneN').textContent=rec.cardsGiven;
+    // show today's event
+    const evBox=document.getElementById('todayEventBox');
+    if(rec.event){evBox.innerHTML=`<div class="event-box event-${rec.event.type}" style="margin-top:10px"><div class="event-icon">${rec.event.icon}</div><div><div style="font-weight:900">${rec.event.title}</div><div style="font-size:.72rem;opacity:.8;margin-top:1px">${rec.event.desc}</div></div></div>`}
+    else evBox.innerHTML='';
+  }
   // streak hint
-  const streakEl=document.getElementById('streakHint');
+  const sh=document.getElementById('streakHint');
   if(!done){
-    const sorted=[...S.history].filter(h=>h.completion!==null).sort((a,b)=>b.date.localeCompare(a.date));
-    const prev=sorted.slice(0,2);
-    const count=prev.filter(h=>h.completion>=80).length;
-    if(count===0) streakEl.textContent='🔥 连续达标进度：0 / 3（连续3天≥80%可额外获得1张奖券）';
-    else if(count===1) streakEl.textContent='🔥 连续达标进度：1 / 3，再坚持2天！';
-    else if(count===2) streakEl.textContent='🔥 连续达标进度：2 / 3，今天≥80%即可触发奖励！';
-  } else { streakEl.textContent=''; }
+    const prev=[...S.history].filter(h=>h.completion!==null).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,2);
+    const cnt=prev.filter(h=>h.completion>=80).length;
+    sh.textContent=cnt===0?'🔥 连续达标进度：0/3（连续3天≥80%可额外得1张奖券）':cnt===1?'🔥 连续达标进度：1/3，再坚持2天！':'🔥 连续达标进度：2/3，今天≥80%即触发奖励！';
+  }else sh.textContent='';
 
   // scratch
   const pending=S.pendingCards;
@@ -791,58 +912,58 @@ function render(){
   document.getElementById('poolRemain').textContent=pending.length;
   document.getElementById('poolTotal').textContent='¥'+pending.reduce((a,c)=>a+c.amount,0).toFixed(2);
   const row=document.getElementById('scratchRow');
-  row.innerHTML=pending.length===0
-    ?'<div class="no-cards">暂无待刮奖券，完成任务来领取吧 🌟</div>'
-    :pending.map((c,i)=>`
-      <div class="s-card sc${i%4}" data-id="${c.id}" onclick="scratch(${c.id})">
-        <div class="s-back"><div class="s-amt">¥${c.amount.toFixed(2)}</div><div class="s-lbl">恭喜获得</div></div>
-        <div class="s-front"><div class="s-icon">🎴</div><div class="s-txt">点击揭晓</div></div>
-      </div>`).join('');
+  row.innerHTML=pending.length===0?'<div class="no-cards">暂无待刮奖券，完成任务来领取吧 🌟</div>':pending.map((c,i)=>`<div class="s-card sc${i%4}" data-id="${c.id}" onclick="scratch(${c.id})"><div class="s-back"><div class="s-amt">¥${c.amount.toFixed(2)}</div><div class="s-lbl">恭喜获得</div></div><div class="s-front"><div class="s-icon">🎴</div><div class="s-txt">点击揭晓</div></div></div>`).join('');
 
-  // extra reward
+  // deposit
+  const dep=S.deposit;
+  document.getElementById('depositMaturedBox').style.display=(dep&&dep.matured)?'block':'none';
+  document.getElementById('depositActiveBox').style.display=(dep&&!dep.matured)?'block':'none';
+  document.getElementById('depositFormBox').style.display=dep?'none':'block';
+  if(dep){
+    document.getElementById('depositPill').textContent=dep.matured?'🎉 已到期':'进行中';
+    document.getElementById('depositPill').className='pill '+(dep.matured?'pill-g':'pill-y');
+    if(dep.matured){
+      document.getElementById('depositMaturedMsg').textContent=`🎉 ¥${dep.amount.toFixed(2)} 存款已到期！点击领取 ${dep.reward} 张奖券奖励`;
+    }else{
+      const start=new Date(dep.startDate),end=new Date(dep.endDate),now2=new Date(today());
+      const total=(end-start)/(1000*60*60*24),elapsed=(now2-start)/(1000*60*60*24);
+      const pct2=Math.min(100,Math.round(elapsed/total*100));
+      document.getElementById('depActiveAmt').textContent=`¥${dep.amount.toFixed(2)} · ${dep.days}天期`;
+      document.getElementById('depActiveDays').textContent=`到期获得 ${dep.reward} 张奖券`;
+      document.getElementById('depProgressFill').style.width=pct2+'%';
+      document.getElementById('depActiveStart').textContent=`开始：${dep.startDate}`;
+      document.getElementById('depActiveEnd').textContent=`到期：${dep.endDate}`;
+    }
+  }else{document.getElementById('depositPill').textContent='未存入';document.getElementById('depositPill').className='pill pill-y'}
+
+  // extra
   const hasExtra=rec&&rec.extra!=null;
   document.getElementById('extraBadge').textContent=hasExtra?'✅ 已添加':'未添加';
   document.getElementById('extraBadge').className='pill '+(hasExtra?'pill-g':'pill-b');
   document.getElementById('extraDoneBox').style.display=hasExtra?'block':'none';
   document.getElementById('extraForm').style.display=hasExtra?'none':'block';
-  if(hasExtra)document.getElementById('extraDoneText').textContent=`+¥${rec.extra.amount.toFixed(2)} · ${rec.extra.note}`;
+  if(hasExtra)document.getElementById('extraDoneText').textContent=`+¥${rec.extra.amount.toFixed(2)}`;
 
   // wishlist
   document.getElementById('wishPill').textContent=S.wishlist.length+' 件';
   const wl=document.getElementById('wishList');
-  if(!S.wishlist.length){wl.innerHTML='<div class="no-wish">愿望清单空空的，加点想买的东西吧 💭</div>'}
-  else {
-    wl.innerHTML=S.wishlist.map(w=>{
-      const gap=r2(w.price-S.balance);
-      const canAfford=gap<=0;
-      const gapText=canAfford?'✅ 余额够了，可以买啦！':`还差 ¥${gap.toFixed(2)} 才够`;
-      return `<div class="wish-item">
-        <div class="wish-info">
-          <div class="wish-name">${w.name}</div>
-          <div class="wish-price">¥${w.price.toFixed(2)}</div>
-          <div class="wish-gap${canAfford?' can':''}">${gapText}</div>
-        </div>
-        <div class="wish-btns">
-          <button class="btn btn-p btn-xs" onclick="buyWish(${w.id})">购买</button>
-          <button class="btn btn-gh btn-xs" onclick="deleteWish(${w.id})">删除</button>
-        </div>
-      </div>`;
-    }).join('');
-  }
+  wl.innerHTML=!S.wishlist.length?'<div class="no-wish">愿望清单空空的 💭</div>':S.wishlist.map(w=>{
+    const gap=r2(w.price-S.balance),canAfford=gap<=0;
+    const gapText=canAfford?'✅ 余额够了！':`还差 ¥${gap.toFixed(2)}`;
+    return`<div class="wish-item"><div class="wish-info"><div class="wish-name">${w.name}</div><div class="wish-price">¥${w.price.toFixed(2)}</div><div class="wish-gap${canAfford?' can':''}">${gapText}</div></div><div class="wish-btns"><button class="btn btn-p btn-xs" onclick="buyWish(${w.id})">购买</button><button class="btn btn-gh btn-xs" onclick="deleteWish(${w.id})">删除</button></div></div>`;
+  }).join('');
 
   // history
   const hb=document.getElementById('histBody');
   if(!S.history.length){hb.innerHTML='<div class="empty-h">还没有记录，快去打第一张卡吧！</div>';return}
   hb.innerHTML=S.history.map(h=>{
-    const earns=(h.cardAmounts||[]).map(a=>`<span class="h-chip hc-earn">🎫 +¥${a.toFixed(2)}</span>`).join('');
-    const extra=h.extra?`<span class="h-chip hc-extra">🌟 +¥${h.extra.amount.toFixed(2)} ${h.extra.note}</span>`:'';
+    const earns=(h.cardAmounts||[]).map(a=>`<span class="h-chip hc-earn">🎫+¥${a.toFixed(2)}</span>`).join('');
+    const extra=h.extra?`<span class="h-chip hc-extra">🌟+¥${h.extra.amount.toFixed(2)}</span>`:'';
+    const ev=h.event?`<span class="h-chip hc-event-${h.event.type}">${h.event.icon}${h.event.title}</span>`:'';
+    const dep2=h.depositClaim?`<span class="h-chip hc-deposit">🏦 存款到期 +¥${h.depositClaim.amount.toFixed(2)}</span>`:'';
     const spends=(h.spending||[]).map(s=>`<div class="h-srow"><span>${s.category}${s.note?' · '+s.note:''}</span><span>-¥${s.amount.toFixed(2)}</span></div>`).join('');
     const pctHtml=h.completion!==null?`<span class="h-pct">${h.completion}%</span>`:`<span style="font-size:.72rem;color:var(--muted);font-weight:500">仅记账</span>`;
-    return `<div class="h-item">
-      <div class="h-row"><span class="h-date">${h.date}</span>${pctHtml}</div>
-      ${earns||extra?`<div class="h-chips">${earns}${extra}</div>`:''}
-      ${spends?`<div class="h-spends">${spends}</div>`:''}
-    </div>`;
+    return`<div class="h-item"><div class="h-row"><span class="h-date">${h.date}</span>${pctHtml}</div>${earns||extra||ev||dep2?`<div class="h-chips">${earns}${extra}${ev}${dep2}</div>`:''}${spends?`<div class="h-spends">${spends}</div>`:''}</div>`;
   }).join('');
 }
 
@@ -850,28 +971,25 @@ function render(){
 //  STARTUP
 // ═══════════════════════════════
 async function syncOnStart(){
-  const cloudData=await loadFromOSS();
-  if(cloudData&&Array.isArray(cloudData.history)){
-    if((cloudData.lastModified||0)>=(S.lastModified||0)){
-      S=cloudData;S.wishlist=S.wishlist??[];S.lastModified=S.lastModified??0;
+  const cloud=await loadFromOSS();
+  if(cloud&&Array.isArray(cloud.history)){
+    if((cloud.lastModified||0)>=(S.lastModified||0)){
+      S=cloud;S.wishlist=S.wishlist??[];S.wishFund=S.wishFund??0;
+      S.lastMonthlyDeposit=S.lastMonthlyDeposit??null;S.deposit=S.deposit??null;S.lastModified=S.lastModified??0;
       saveLocal();
     }
     render();renderChart();
   }
 }
-
 async function init(){
   render();renderChart();
   if(!cfg){document.getElementById('setupCard').style.display='block';setSyncStatus('','尚未配置云同步');return}
-  if(cfg.skipped){setSyncStatus('','仅本地存储（未配置云同步）');return}
-  document.getElementById('cfgRegion').value=cfg.region||'';
-  document.getElementById('cfgBucket').value=cfg.bucket||'';
-  document.getElementById('cfgKeyId').value=cfg.keyId||'';
-  document.getElementById('cfgKeySecret').value=cfg.keySecret||'';
+  if(cfg.skipped){setSyncStatus('','仅本地存储');return}
+  document.getElementById('cfgRegion').value=cfg.region||'';document.getElementById('cfgBucket').value=cfg.bucket||'';
+  document.getElementById('cfgKeyId').value=cfg.keyId||'';document.getElementById('cfgKeySecret').value=cfg.keySecret||'';
   if(initOSS(cfg))await syncOnStart();
-  else{setSyncStatus('err','OSS 配置有误，使用本地数据');document.getElementById('setupCard').style.display='block'}
+  else{setSyncStatus('err','OSS 配置有误');document.getElementById('setupCard').style.display='block'}
 }
-
 init();
 </script>
 </body>
