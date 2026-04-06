@@ -571,14 +571,26 @@ function rnd(a,b){return Math.round((Math.random()*(b-a)+a)*100)/100}
 //  RANDOM EVENTS
 // ═══════════════════════════════
 const EVENTS=[
-  // good (weight 7)
-  {type:'good',icon:'🍀',title:'捡到零钱！',desc:'奖励余额 +¥0.50',weight:2,apply:(cards)=>{S.balance=r2(S.balance+0.5);return{kind:'balance',val:0.5}}},
-  {type:'good',icon:'✨',title:'幸运加成！',desc:'本次所有奖券金额各 +¥1',weight:2,apply:(cards)=>{cards.forEach(c=>{c.amount=r2(Math.min(c.amount+1,10))});return{kind:'cards',val:1}}},
-  {type:'good',icon:'🎁',title:'神秘礼包！',desc:'额外获得 1 张奖券',weight:2,apply:(cards)=>{const c={id:Date.now()+999,amount:rnd(...weatherRange())};cards.push(c);S.pendingCards.push(c);return{kind:'extraCard',val:c.amount}}},
-  {type:'good',icon:'💫',title:'愿望之星！',desc:'愿望基金 +¥5',weight:1,apply:(cards)=>{S.wishFund=r2(S.wishFund+5);return{kind:'wishFund',val:5}}},
-  // bad (weight 3)
-  {type:'bad',icon:'💸',title:'哎呀掉零钱了……',desc:'奖励余额 -¥0.50（如果余额充足）',weight:2,apply:(cards)=>{if(S.balance>=0.5)S.balance=r2(S.balance-0.5);return{kind:'balance',val:-0.5}}},
-  {type:'bad',icon:'🌩️',title:'倒霉蛋！',desc:'本次所有奖券金额各 -¥1（最低¥1）',weight:1,apply:(cards)=>{cards.forEach(c=>{c.amount=r2(Math.max(c.amount-1,1))});return{kind:'cards',val:-1}}},
+  // ── 好事 ──
+  {type:'good',icon:'🍀',title:'捡到零钱！',desc:'奖励余额 +¥0.50',weight:2,apply:(cards)=>{S.balance=r2(S.balance+0.5);return{}}},
+  {type:'good',icon:'✨',title:'幸运加成！',desc:'本次所有奖券金额各 +¥1',weight:2,apply:(cards)=>{cards.forEach(c=>{c.amount=r2(Math.min(c.amount+1,10))});return{}}},
+  {type:'good',icon:'🎁',title:'神秘礼包！',desc:'额外获得 1 张奖券',weight:2,apply:(cards)=>{const c={id:Date.now()+Math.floor(Math.random()*9999)+1000,amount:rnd(...weatherRange())};cards.push(c);return{}}},
+  {type:'good',icon:'💫',title:'愿望之星！',desc:'愿望基金 +¥5',weight:1,apply:(cards)=>{S.wishFund=r2(S.wishFund+5);return{}}},
+  {type:'good',icon:'🎰',title:'老虎机！',desc:'随机获得 ¥1-5',weight:2,apply:(cards)=>{const v=rnd(1,5);S.balance=r2(S.balance+v);return{desc:`随机获得 ¥${v.toFixed(2)}`}}},
+  {type:'good',icon:'🌈',title:'彩虹时刻！',desc:'所有奖券金额翻倍（上限¥10）',weight:1,apply:(cards)=>{cards.forEach(c=>{c.amount=r2(Math.min(c.amount*2,10))});return{}}},
+  {type:'good',icon:'🎪',title:'嘉年华！',desc:'额外获得 2 张奖券',weight:1,apply:(cards)=>{[0,1].forEach(i=>{const c={id:Date.now()+Math.floor(Math.random()*9999)+2000+i*100,amount:rnd(...weatherRange())};cards.push(c)});return{}}},
+  {type:'good',icon:'🧧',title:'红包来了！',desc:'奖励余额 +¥1',weight:2,apply:(cards)=>{S.balance=r2(S.balance+1);return{}}},
+  {type:'good',icon:'🔮',title:'神秘水晶！',desc:'最小奖券金额提升到 ¥5',weight:1,apply:(cards)=>{cards.forEach(c=>{if(c.amount<5)c.amount=r2(rnd(5,10))});return{}}},
+  {type:'good',icon:'🍭',title:'糖果时间！',desc:'愿望基金 +¥3，余额 +¥0.50',weight:2,apply:(cards)=>{S.wishFund=r2(S.wishFund+3);S.balance=r2(S.balance+0.5);return{}}},
+  {type:'good',icon:'⚡',title:'能量爆发！',desc:'本次奖券数量 +1 张',weight:1,apply:(cards)=>{const c={id:Date.now()+Math.floor(Math.random()*9999)+3000,amount:rnd(...weatherRange())};cards.push(c);return{}}},
+  {type:'good',icon:'🌟',title:'流星许愿！',desc:'愿望基金 +¥8',weight:1,apply:(cards)=>{S.wishFund=r2(S.wishFund+8);return{}}},
+  // ── 坏事 ──
+  {type:'bad',icon:'💸',title:'哎呀掉零钱了……',desc:'奖励余额 -¥0.50（余额充足时）',weight:2,apply:(cards)=>{if(S.balance>=0.5)S.balance=r2(S.balance-0.5);return{}}},
+  {type:'bad',icon:'🌩️',title:'倒霉蛋！',desc:'本次所有奖券金额各 -¥1（最低¥1）',weight:1,apply:(cards)=>{cards.forEach(c=>{c.amount=r2(Math.max(c.amount-1,1))});return{}}},
+  {type:'bad',icon:'🕳️',title:'掉进坑里了……',desc:'随机一张奖券金额减半',weight:2,apply:(cards)=>{if(cards.length>0){const i=Math.floor(Math.random()*cards.length);cards[i].amount=r2(Math.max(cards[i].amount/2,1))}return{}}},
+  {type:'bad',icon:'🌧️',title:'倒霉的一天……',desc:'愿望基金 -¥2（充足时）',weight:1,apply:(cards)=>{if(S.wishFund>=2)S.wishFund=r2(S.wishFund-2);return{}}},
+  {type:'bad',icon:'🐛',title:'虫子爬过去了！',desc:'所有奖券金额上限变为 ¥5',weight:1,apply:(cards)=>{cards.forEach(c=>{if(c.amount>5)c.amount=r2(rnd(1,5))});return{}}},
+  {type:'bad',icon:'😴',title:'犯困了……',desc:'本次奖券数量 -1 张（最少保留1张）',weight:1,apply:(cards)=>{if(cards.length>1)cards.pop();return{}}},
 ];
 function pickEvent(){
   const total=EVENTS.reduce((a,e)=>a+e.weight,0);
@@ -620,13 +632,16 @@ function doCheckin(){
 
   // 生成天气范围奖券
   const [rMin,rMax]=weatherRange();
-  const newCards=Array.from({length:n},(_,i)=>({id:Date.now()+i,amount:rnd(rMin,rMax)}));
+  const newCards=Array.from({length:n},(_,i)=>({id:Date.now()+i*13+Math.floor(Math.random()*999),amount:rnd(rMin,rMax)}));
 
   // 随机事件（打卡才触发）
   let eventResult=null,chosenEvent=null;
   if(pct>0){
     chosenEvent=pickEvent();
     eventResult=chosenEvent.apply(newCards);
+    // 如果 apply 返回了动态 desc，覆盖默认 desc
+    if(eventResult&&eventResult.desc)chosenEvent._dynDesc=eventResult.desc;
+    else chosenEvent._dynDesc=null;
   }
 
   S.pendingCards.push(...newCards);
@@ -649,7 +664,7 @@ function doCheckin(){
     setTimeout(()=>{
       document.getElementById('evIcon').textContent=chosenEvent.icon;
       document.getElementById('evTitle').textContent=chosenEvent.title;
-      document.getElementById('evDesc').textContent=chosenEvent.desc;
+      document.getElementById('evDesc').textContent=chosenEvent._dynDesc||chosenEvent.desc;
       document.getElementById('eventModal').classList.add('show');
     },600);
   }
